@@ -12,6 +12,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
+// import {IAxelarExecutable} from "./IAxelarExecutable.sol";
+
 import "hardhat/console.sol";
 
 contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, ReentrancyGuard {
@@ -33,6 +35,7 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
     constructor(address _marketplaceMetaWallet) {
         feeAddress = msg.sender;
         _marketplaceMetaWallet = marketplaceMetaWallet;
+        _initializeEIP712("AxelarSeaMarketplace");
     }
 
     mapping(address => mapping(address => mapping(uint256 => SaleInfo))) private sales;

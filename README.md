@@ -5,6 +5,7 @@
 ### Polygon testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
 * Marketplace deployed to: 0x5fA3b915A19D4a56417C06ba6617a8E90Ea149fD
+* Sample NFT deployed to: 0xe54bd661dda41649A1c84b9D22Eb95BD1fc9BB58
 
 ### Avax testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C

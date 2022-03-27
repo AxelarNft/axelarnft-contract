@@ -34,6 +34,8 @@ contract MarketplaceMetaWallet is NativeMetaTransaction, ContextMixin, Reentranc
     master = AxelarSeaMarketplace(_master);
     walletAddress = _walletAddress;
 
+    _initializeEIP712("MarketplaceMetaWallet");
+
     initialized = true;
   }
 
