@@ -34,12 +34,12 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
 
     constructor(address _marketplaceMetaWallet) {
         feeAddress = msg.sender;
-        _marketplaceMetaWallet = marketplaceMetaWallet;
+        marketplaceMetaWallet = _marketplaceMetaWallet;
         _initializeEIP712("AxelarSeaMarketplace");
     }
 
     mapping(address => mapping(address => mapping(uint256 => SaleInfo))) private sales;
-    mapping(address => address) public metaWallet;
+    mapping(address => MarketplaceMetaWallet) public metaWallet;
     mapping(address => uint256) public royalty;
 
     function getSale(address seller, address token, uint256 tokenId) public view returns(SaleInfo memory) {
@@ -133,6 +133,7 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
         MarketplaceMetaWallet wallet = MarketplaceMetaWallet(Clones.clone(marketplaceMetaWallet));
         wallet.initialize(address(this), target);
         emit CreateMetaWallet(msgSender(), target, address(wallet));
+        metaWallet[target] = wallet;
         return wallet;
     }
 }
