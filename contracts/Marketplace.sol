@@ -83,7 +83,7 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
         emit CancelListing(seller, token, tokenId);
     }
 
-    function buyERC721(IERC721 token, address seller, uint256 tokenId) public nonReentrant {
+    function buyERC721(address to, IERC721 token, address seller, uint256 tokenId) public nonReentrant {
         address buyer = msgSender();
 
         SaleInfo storage saleInfo = sales[seller][address(token)][tokenId];
@@ -98,15 +98,15 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
             saleInfo.priceToken.safeTransferFrom(buyer, Ownable(address(token)).owner(), royaltyFee);
         }
         saleInfo.priceToken.safeTransferFrom(buyer, seller, saleInfo.price - fee - royaltyFee);
-        token.safeTransferFrom(seller, buyer, tokenId);
+        token.safeTransferFrom(seller, to, tokenId);
 
-        emit Buy(buyer, address(token), tokenId, 1, address(saleInfo.priceToken), saleInfo.price, seller);
+        emit Buy(to, address(token), tokenId, 1, address(saleInfo.priceToken), saleInfo.price, seller);
 
         sales[seller][address(token)][tokenId].price = 0;
         sales[seller][address(token)][tokenId].amount = 0;
     }
 
-    function buyERC1155(IERC1155 token, address seller, uint256 tokenId, uint256 amount) public nonReentrant {
+    function buyERC1155(address to, IERC1155 token, address seller, uint256 tokenId, uint256 amount) public nonReentrant {
         address buyer = msgSender();
 
         SaleInfo storage saleInfo = sales[seller][address(token)][tokenId];
@@ -121,9 +121,9 @@ contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, R
             saleInfo.priceToken.safeTransferFrom(buyer, Ownable(address(token)).owner(), royaltyFee * amount);
         }
         saleInfo.priceToken.safeTransferFrom(buyer, seller, (saleInfo.price - fee - royaltyFee) * amount);
-        token.safeTransferFrom(seller, buyer, tokenId, amount, "");
+        token.safeTransferFrom(seller, to, tokenId, amount, "");
 
-        emit Buy(buyer, address(token), tokenId, amount, address(saleInfo.priceToken), saleInfo.price, seller);
+        emit Buy(to, address(token), tokenId, amount, address(saleInfo.priceToken), saleInfo.price, seller);
 
         sales[seller][address(token)][tokenId].amount -= amount;
     }

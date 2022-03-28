@@ -43,8 +43,7 @@ contract MarketplaceMetaWallet is NativeMetaTransaction, ContextMixin, Reentranc
     AxelarSeaMarketplace.SaleInfo memory saleInfo = master.getSale(seller, address(token), tokenId);
 
     saleInfo.priceToken.safeApprove(address(master), saleInfo.price + 10000); // + 10000 To prevent floating point error
-    master.buyERC721(token, seller, tokenId);
-    token.safeTransferFrom(address(this), walletAddress, tokenId);
+    master.buyERC721(walletAddress, token, seller, tokenId);
 
     // Prevent any exploit
     saleInfo.priceToken.safeApprove(address(master), 0);
@@ -56,8 +55,7 @@ contract MarketplaceMetaWallet is NativeMetaTransaction, ContextMixin, Reentranc
     AxelarSeaMarketplace.SaleInfo memory saleInfo = master.getSale(seller, address(token), tokenId);
     
     saleInfo.priceToken.safeApprove(address(master), saleInfo.price * amount + 10000); // + 10000 To prevent floating point error
-    master.buyERC1155(token, seller, tokenId, amount);
-    token.safeTransferFrom(address(this), walletAddress, tokenId, amount, "");
+    master.buyERC1155(walletAddress, token, seller, tokenId, amount);
 
     // Prevent any exploit
     saleInfo.priceToken.safeApprove(address(master), 0);
