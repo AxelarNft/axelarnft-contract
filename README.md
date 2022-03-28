@@ -8,8 +8,8 @@
 * Sample NFT deployed to: 0xe54bd661dda41649A1c84b9D22Eb95BD1fc9BB58
 
 ### Avax testnet
-* MarketplaceMetaWallet deployed to: 0x89489155A8D187199b7FBf80F0bCF24Af1e48431
-* Marketplace deployed to: 0xefE5a3b23e3f38A1b0DCc88cb13415aCe6F1eBF1
+* MarketplaceMetaWallet deployed to: 0xC03a7ED392E02a9F404013593A3dae8234876874
+* Marketplace deployed to: 0xA32a90B0ec1232c69388AA1Bd5FEE6E8570a3726
 * Sample NFT deployed to: 0x913fF316D6921438930e131b716344F42Cb79135
 
 ## Hardhat 101
