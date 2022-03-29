@@ -20,7 +20,7 @@
 ### Fantom testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
 * Marketplace deployed to: 0x5fA3b915A19D4a56417C06ba6617a8E90Ea149fD
-* Sample NFT deployed to: 0xc873FA6c0068895f80C4A25021B94FCFA33E3268
+* Sample NFT deployed to: 0xcdc110ff963e5c4508BeDcf5fF7795C9E526Dfd5
 
 ## Hardhat 101
 
