@@ -18,7 +18,7 @@ contract AxelarSeaSampleNft is ERC721, Ownable {
   bool public paused = true;
   bool public revealed = false;
 
-  constructor() ERC721("Axelar Sea Sample NFT", "AXLSAMPNFT") {
+  constructor(string memory name, string memory symbol) ERC721(name, symbol) {
     setHiddenMetadataUri("ipfs://QmSMiYqVWK7TYa9y4hcb2TkzkSR8hFDkfB4qaLrjY22gYb");
   }
 

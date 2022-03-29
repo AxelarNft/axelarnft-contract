@@ -7,7 +7,7 @@ const hre = require("hardhat");
 
 async function main() {
   const Nft = await hre.ethers.getContractFactory("AxelarSeaSampleNft");
-  const nft = await Nft.deploy();
+  const nft = await Nft.deploy("AxelarSea ETH", "AXLSEAETH");
   await nft.deployed();
 
   console.log("Sample NFT deployed to:", nft.address);
