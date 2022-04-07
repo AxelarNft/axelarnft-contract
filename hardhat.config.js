@@ -110,6 +110,11 @@ module.exports = {
       chainId: 4002,
       accounts: [privateKeyTest]
     },
+    moonbeamtestnet: {
+      url: "https://rpc.testnet.moonbeam.network/",
+      chainId: 1287,
+      accounts: [privateKeyTest]
+    },
 
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
