@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
-// import {IAxelarExecutable} from "./IAxelarExecutable.sol";
+// import {IAxelarExecutable} from "./axelar/IAxelarExecutable.sol";
 
 import "hardhat/console.sol";
 
