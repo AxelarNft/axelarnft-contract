@@ -21,10 +21,9 @@ contract AxelarSeaNftBridgeController is Ownable {
 
   mapping(uint128 => address) public registeredBridge;
 
-  mapping(address => uint256) public address2nftId; // Clones
-  mapping(address => uint256) public nftId721; // Origin
-  mapping(address => uint256) public nftId1155; // Origin
+  mapping(address => uint256) public address2nftId;
   mapping(uint256 => address) public nftId2address;
+  mapping(uint256 => bool) public isERC721;
   uint128 public nftIdCounter = 0;
 
   modifier onlyRegisteredBridge(address bridge, uint128 chainId) {
@@ -55,88 +54,68 @@ contract AxelarSeaNftBridgeController is Ownable {
     chainId = uint128(nftId >> 128);
   }
 
+  event EnableERC721(uint256 indexed nftId, address indexed nftAddress, uint128 indexed chainId);
+  event EnableERC1155(uint256 indexed nftId, address indexed nftAddress, uint128 indexed chainId);
   event NewERC721(uint256 indexed nftId, address indexed nftAddress);
   event NewERC1155(uint256 indexed nftId, address indexed nftAddress);
   event Unlock(uint256 indexed nftId, address indexed nftAddress, uint256 indexed tokenId, uint256 amount);
 
-  function unlockERC721WithPayload(
-    address to, 
-    uint128 chainId, 
-    uint128 nftIdPartial, 
+  function unlockWithPayload(
+    uint256 nftId,
     uint256 tokenId, 
-    uint256 amount, 
-    string memory from, 
+    uint256 amount,
+    string memory from,
+    bytes calldata header, // Split for flexibility
     bytes calldata payload
-  ) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
+  ) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+    require(!isERC721[nftId] || amount == 1, "Forbidden");
+
+    uint128 chainId = uint128(nftId >> 128);
+    (address to) = abi.decode(header,(address));
     address nft = nftId2address[nftId];
 
     if (chainId == block.chainid) {
-      IERC721(nft).safeTransferFrom(address(this), to, tokenId);
+      if (isERC721[nftId]) {
+        IERC721(nft).safeTransferFrom(address(this), to, tokenId);
+      } else {
+        IERC1155(nft).safeTransferFrom(address(this), to, tokenId, amount, "");
+      }
     } else {
       IAxelarSeaNft(nft).unlock(to, tokenId, amount);
     }
 
     IAxelarSeaNftExecutable(to).execute(nft, chainId, nftId, tokenId, amount, from, payload);
+
+    emit Unlock(nftId, nft, tokenId, amount);
   }
 
-  function unlockERC721(
-    address to, 
-    uint128 chainId, 
-    uint128 nftIdPartial, 
-    uint256 tokenId, 
-    uint256 amount
-  ) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
+  function unlock(
+    uint256 nftId,
+    uint256 tokenId,
+    uint256 amount,
+    bytes calldata header // Split for flexibility
+  ) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+    require(!isERC721[nftId] || amount == 1, "Forbidden");
+
+    uint128 chainId = uint128(nftId >> 128);
+    (address to) = abi.decode(header,(address));
     address nft = nftId2address[nftId];
 
     if (chainId == block.chainid) {
-      IERC721(nft).safeTransferFrom(address(this), to, tokenId);
-    } else {
-      IAxelarSeaNft(nft).unlock(to, tokenId, amount);
-    }
-  }
-
-  function unlockERC1155WithPayload(
-    address to, 
-    uint128 chainId, 
-    uint128 nftIdPartial, 
-    uint256 tokenId, 
-    uint256 amount, 
-    string memory from, 
-    bytes calldata payload
-  ) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
-    address nft = nftId2address[nftId];
-
-    if (chainId == block.chainid) {
-      IERC1155(nft).safeTransferFrom(address(this), to, tokenId, amount, "");
+      if (isERC721[nftId]) {
+        IERC721(nft).safeTransferFrom(address(this), to, tokenId);
+      } else {
+        IERC1155(nft).safeTransferFrom(address(this), to, tokenId, amount, "");
+      }
     } else {
       IAxelarSeaNft(nft).unlock(to, tokenId, amount);
     }
 
-    IAxelarSeaNftExecutable(to).execute(nft, chainId, nftId, tokenId, amount, from, payload);
+    emit Unlock(nftId, nft, tokenId, amount);
   }
 
-  function unlockERC1155(
-    address to, 
-    uint128 chainId, 
-    uint128 nftIdPartial, 
-    uint256 tokenId, 
-    uint256 amount
-  ) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
-    address nft = nftId2address[nftId];
-
-    if (chainId == block.chainid) {
-      IERC1155(nft).safeTransferFrom(address(this), to, tokenId, amount, "");
-    } else {
-      IAxelarSeaNft(nft).unlock(to, tokenId, amount);
-    }
-  }
-
-  function deployERC721(uint128 chainId, uint128 nftIdPartial, string memory name, string memory symbol) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
+  function deployERC721(uint256 nftId, string memory name, string memory symbol) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+    uint128 chainId = uint128(nftId >> 128);
 
     // Deploy if not available
     if (chainId != block.chainid && nftId2address[nftId] == address(0)) {
@@ -155,8 +134,8 @@ contract AxelarSeaNftBridgeController is Ownable {
     }
   }
 
-  function deployERC1155(uint128 chainId, uint128 nftIdPartial) public onlyRegisteredBridge(msg.sender, chainId) {
-    uint256 nftId = encodeNftId(chainId, nftIdPartial);
+  function deployERC1155(uint256 nftId) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+    uint128 chainId = uint128(nftId >> 128);
 
     // Deploy if not available
     if (chainId != block.chainid && nftId2address[nftId] == address(0)) {
@@ -173,27 +152,81 @@ contract AxelarSeaNftBridgeController is Ownable {
     }
   }
 
-  function enableERC721(uint128 chainId, ERC721 nft) public {
-    require(nft.supportsInterface(0x80ac58cd), "Not ERC721");
+  function _newNftId() internal returns(uint256) {
+    return encodeNftId(uint128(block.chainid), nftIdCounter++);
+  }
+
+  function enable(uint128 chainId, IERC165 nft) public {
+    uint256 nftId = _newNftId();
+
+    if (nft.supportsInterface(0x80ac58cd)) {
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+        AxelarSeaNftBridgeController(address(this)).deployERC721.selector,
+        chainId,
+        nftId,
+        ERC721(address(nft)).name(),
+        ERC721(address(nft)).symbol()
+      ));
+
+      isERC721[nftId] = true;
+
+      emit EnableERC721(nftId, address(nft), chainId);
+    } else if (nft.supportsInterface(0xd9b67a26)) {
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+        AxelarSeaNftBridgeController(address(this)).deployERC1155.selector,
+        chainId,
+        nftId
+      ));
+
+      isERC721[nftId] = false;
+
+      emit EnableERC1155(nftId, address(nft), chainId);
+    } else {
+      revert("Not supported");
+    }
+
+    address2nftId[address(nft)] = nftId;
+    nftId2address[nftId] = address(nft);
+  }
+
+  function _lock(uint256 nftId, uint256 tokenId, uint256 amount) internal {
+    require(!isERC721[nftId] || amount == 1, "Forbidden");
+    address nft = nftId2address[nftId];
+
+    if (nftId >> 128 == block.chainid) {
+      if (isERC721[nftId]) {
+        IERC721(nft).safeTransferFrom(msg.sender, address(this), tokenId);
+      } else {
+        IERC1155(nft).safeTransferFrom(msg.sender, address(this), tokenId, amount, "");
+      }
+    } else {
+      IAxelarSeaNft(nft).lock(msg.sender, tokenId, amount);
+    }
+  }
+
+  function bridge(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header) public {
+    _lock(nftId, tokenId, amount);
+
     IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
-      AxelarSeaNftBridgeController(address(this)).deployERC721.selector,
-      chainId,
-      nftIdCounter++,
-      nft.name(),
-      nft.symbol()
+      AxelarSeaNftBridgeController(address(this)).unlock.selector,
+      nftId,
+      tokenId,
+      amount,
+      header
     ));
   }
 
-  function enableERC1155(uint128 chainId, IERC1155 nft) public {
-    require(nft.supportsInterface(0xd9b67a26), "Not ERC1155");
-    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
-      AxelarSeaNftBridgeController(address(this)).deployERC1155.selector,
-      chainId,
-      nftIdCounter++
-    ));
-  }
+  function bridgeWithPayload(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header, bytes calldata payload) public {
+    _lock(nftId, tokenId, amount);
 
-  function bridgeERC721(uint128 chainId, IERC721 nft, uint256 tokenId) public {
-    
+    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+      AxelarSeaNftBridgeController(address(this)).unlockWithPayload.selector,
+      nftId,
+      tokenId,
+      amount,
+      Strings.toHexString(uint160(msg.sender), 20),
+      header,
+      payload
+    ));
   }
 }
