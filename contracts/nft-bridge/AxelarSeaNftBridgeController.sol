@@ -20,14 +20,15 @@ contract AxelarSeaNftBridgeController is Ownable {
   address public immutable erc1155template;
 
   mapping(uint128 => address) public registeredBridge;
+  mapping(address => bool) public enabledBridge;
 
   mapping(address => uint256) public address2nftId;
   mapping(uint256 => address) public nftId2address;
   mapping(uint256 => bool) public isERC721;
-  uint128 public nftIdCounter = 0;
+  uint128 public nftIdCounter = 1;
 
-  modifier onlyRegisteredBridge(address bridge, uint128 chainId) {
-    require(registeredBridge[chainId] == bridge, "Bridge Forbidden");
+  modifier onlyRegisteredBridge(address _bridge) {
+    require(enabledBridge[_bridge], "Bridge Forbidden");
     _;
   }
 
@@ -39,10 +40,20 @@ contract AxelarSeaNftBridgeController is Ownable {
     erc1155template = _erc1155template;
   }
 
+  event EnableBridge(address indexed caller, address indexed bridge, bool enabled);
+  function enableBridge(address _bridge, bool enabled) public onlyOwner {
+    enabledBridge[_bridge] = enabled;
+    emit EnableBridge(msg.sender, _bridge, enabled);
+  }
+
   event RegisterBridge(address indexed caller, uint128 indexed chainId, address indexed bridge);
-  function registerBridge(uint128 chainId, address bridge) public onlyOwner {
-    registeredBridge[chainId] = bridge;
-    emit RegisterBridge(msg.sender, chainId, bridge);
+  function registerBridge(uint128 chainId, address _bridge) public onlyOwner {
+    registeredBridge[chainId] = _bridge;
+    emit RegisterBridge(msg.sender, chainId, _bridge);
+
+    if (!enabledBridge[_bridge]) {
+      enableBridge(_bridge, true);
+    }
   }
 
   function encodeNftId(uint128 chainId, uint128 nftIdPartial) public pure returns(uint256) {
@@ -67,7 +78,7 @@ contract AxelarSeaNftBridgeController is Ownable {
     string memory from,
     bytes calldata header, // Split for flexibility
     bytes calldata payload
-  ) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+  ) public onlyRegisteredBridge(msg.sender) {
     require(!isERC721[nftId] || amount == 1, "Forbidden");
 
     uint128 chainId = uint128(nftId >> 128);
@@ -94,7 +105,7 @@ contract AxelarSeaNftBridgeController is Ownable {
     uint256 tokenId,
     uint256 amount,
     bytes calldata header // Split for flexibility
-  ) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+  ) public onlyRegisteredBridge(msg.sender) {
     require(!isERC721[nftId] || amount == 1, "Forbidden");
 
     uint128 chainId = uint128(nftId >> 128);
@@ -114,7 +125,7 @@ contract AxelarSeaNftBridgeController is Ownable {
     emit Unlock(nftId, nft, tokenId, amount);
   }
 
-  function deployERC721(uint256 nftId, string memory name, string memory symbol) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+  function deployERC721(uint256 nftId, string memory name, string memory symbol) public onlyRegisteredBridge(msg.sender) {
     uint128 chainId = uint128(nftId >> 128);
 
     // Deploy if not available
@@ -129,12 +140,13 @@ contract AxelarSeaNftBridgeController is Ownable {
 
       address2nftId[erc721] = nftId;
       nftId2address[nftId] = erc721;
+      isERC721[nftId] = true;
 
       emit NewERC721(nftId, erc721);
     }
   }
 
-  function deployERC1155(uint256 nftId) public onlyRegisteredBridge(msg.sender, uint128(nftId >> 128)) {
+  function deployERC1155(uint256 nftId) public onlyRegisteredBridge(msg.sender) {
     uint128 chainId = uint128(nftId >> 128);
 
     // Deploy if not available
@@ -147,6 +159,7 @@ contract AxelarSeaNftBridgeController is Ownable {
 
       address2nftId[erc1155] = nftId;
       nftId2address[nftId] = erc1155;
+      isERC721[nftId] = false;
 
       emit NewERC1155(nftId, erc1155);
     }
@@ -156,8 +169,8 @@ contract AxelarSeaNftBridgeController is Ownable {
     return encodeNftId(uint128(block.chainid), nftIdCounter++);
   }
 
-  function enable(uint128 chainId, IERC165 nft) public {
-    uint256 nftId = _newNftId();
+  function enable(uint128 chainId, IERC165 nft) public payable {
+    uint256 nftId = address2nftId[address(nft)] == 0 ? _newNftId() : address2nftId[address(nft)];
 
     if (nft.supportsInterface(0x80ac58cd)) {
       IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
@@ -172,7 +185,7 @@ contract AxelarSeaNftBridgeController is Ownable {
 
       emit EnableERC721(nftId, address(nft), chainId);
     } else if (nft.supportsInterface(0xd9b67a26)) {
-      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
         AxelarSeaNftBridgeController(address(this)).deployERC1155.selector,
         chainId,
         nftId
@@ -204,10 +217,10 @@ contract AxelarSeaNftBridgeController is Ownable {
     }
   }
 
-  function bridge(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header) public {
+  function bridge(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header) public payable {
     _lock(nftId, tokenId, amount);
 
-    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
       AxelarSeaNftBridgeController(address(this)).unlock.selector,
       nftId,
       tokenId,
@@ -216,10 +229,10 @@ contract AxelarSeaNftBridgeController is Ownable {
     ));
   }
 
-  function bridgeWithPayload(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header, bytes calldata payload) public {
+  function bridgeWithPayload(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header, bytes calldata payload) public payable {
     _lock(nftId, tokenId, amount);
 
-    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
       AxelarSeaNftBridgeController(address(this)).unlockWithPayload.selector,
       nftId,
       tokenId,
