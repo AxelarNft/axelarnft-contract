@@ -9,7 +9,7 @@ import {IAxelarGasReceiver} from "@axelar-network/axelar-cgp-solidity/src/interf
 contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Ownable {
   IAxelarGasReceiver public immutable gasReceiver;
 
-  constructor(address _gateway, address _controller, address _gasReceiver) IAxelarExecutable(_gateway) IAxelarSeaNftBridge(_controller) {
+  constructor(address _controller, address _gateway, address _gasReceiver) IAxelarExecutable(_gateway) IAxelarSeaNftBridge(_controller) {
     gasReceiver = IAxelarGasReceiver(_gasReceiver);
   }
 
@@ -19,7 +19,7 @@ contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Own
     string bridgeAddress;
   }
   mapping(uint128 => SiblingData) public siblings;
-  mapping(string => uint128) public chainNameLookup;
+  mapping(bytes32 => uint128) public chainNameLookup;
 
   event AddSibling(uint128 indexed chainId, string chainName, string bridgeAddress);
   function addSibling(uint128 chainId, string memory chainName, string memory bridgeAddress) public onlyOwner {
@@ -28,13 +28,14 @@ contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Own
       chainName: chainName,
       bridgeAddress: bridgeAddress
     });
-    chainNameLookup[chainName] = chainId;
+    chainNameLookup[keccak256(bytes(chainName))] = chainId;
 
     emit AddSibling(chainId, chainName, bridgeAddress);
   }
 
   function _bridgeAxelar(string memory destinationChain, string memory destinationAddress, bytes calldata payload) internal {
     gasReceiver.payNativeGasForContractCall{value: msg.value}(
+      address(this),
       destinationChain,
       destinationAddress,
       payload
@@ -52,12 +53,13 @@ contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Own
     string memory sourceAddress,
     bytes calldata payload
   ) internal virtual override {
-    require(keccak256(bytes(sourceAddress)) == keccak256(bytes(siblings[chainNameLookup[sourceChain]])), "WRONG_SENDER");
+    require(keccak256(bytes(sourceAddress)) == keccak256(bytes(siblings[chainNameLookup[keccak256(bytes(sourceChain))]].bridgeAddress)), "WRONG_SENDER");
 
     // Low level call with payload
-    (bool success, ) = address(controller).call(payload);
+    (bool success, bytes memory returndata) = address(controller).call(payload);
 
     // Revert if not success
+    require(success, string(returndata));
     if (!success) {
       _bridgeAxelar(sourceChain, sourceAddress, payload);
     }

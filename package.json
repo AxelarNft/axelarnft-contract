@@ -25,6 +25,7 @@
 		"mocha": "^9.1.1"
 	},
 	"dependencies": {
-		"@axelar-network/axelar-cgp-solidity": "^3.1.1"
+		"@axelar-network/axelar-cgp-solidity": "https://github.com/axelarnetwork/axelar-cgp-solidity#feat/gas-receiver",
+		"@axelar-network/axelar-local-dev": "https://github.com/axelarnetwork/axelar-local-gmp-examples"
 	}
 }

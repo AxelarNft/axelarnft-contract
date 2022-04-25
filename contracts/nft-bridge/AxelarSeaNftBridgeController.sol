@@ -8,6 +8,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+
 import "./tokens/AxelarSeaERC721.sol";
 import "./tokens/AxelarSeaERC1155.sol";
 import "./tokens/IAxelarSeaNft.sol";
@@ -15,7 +18,7 @@ import "./tokens/IAxelarSeaNft.sol";
 import "./IAxelarSeaNftExecutable.sol";
 import "./bridges/IAxelarSeaNftBridge.sol";
 
-contract AxelarSeaNftBridgeController is Ownable {
+contract AxelarSeaNftBridgeController is Ownable, ERC721Holder, ERC1155Holder {
   address public immutable erc721Template;
   address public immutable erc1155template;
 
@@ -57,7 +60,7 @@ contract AxelarSeaNftBridgeController is Ownable {
   }
 
   function encodeNftId(uint128 chainId, uint128 nftIdPartial) public pure returns(uint256) {
-    return chainId << 128 | nftIdPartial;
+    return uint256(chainId) << 128 | uint256(nftIdPartial);
   }
 
   function decodeNftId(uint256 nftId) public pure returns(uint128 chainId, uint128 nftIdPartial) {
@@ -151,7 +154,7 @@ contract AxelarSeaNftBridgeController is Ownable {
 
     // Deploy if not available
     if (chainId != block.chainid && nftId2address[nftId] == address(0)) {
-      address erc1155 = Clones.cloneDeterministic(erc721Template, bytes32(nftId));
+      address erc1155 = Clones.cloneDeterministic(erc1155template, bytes32(nftId));
       AxelarSeaERC1155(erc1155).initialize(
         address(this),
         nftId
@@ -173,9 +176,8 @@ contract AxelarSeaNftBridgeController is Ownable {
     uint256 nftId = address2nftId[address(nft)] == 0 ? _newNftId() : address2nftId[address(nft)];
 
     if (nft.supportsInterface(0x80ac58cd)) {
-      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge(chainId, abi.encodeWithSelector(
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
         AxelarSeaNftBridgeController(address(this)).deployERC721.selector,
-        chainId,
         nftId,
         ERC721(address(nft)).name(),
         ERC721(address(nft)).symbol()
@@ -187,7 +189,6 @@ contract AxelarSeaNftBridgeController is Ownable {
     } else if (nft.supportsInterface(0xd9b67a26)) {
       IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
         AxelarSeaNftBridgeController(address(this)).deployERC1155.selector,
-        chainId,
         nftId
       ));
 

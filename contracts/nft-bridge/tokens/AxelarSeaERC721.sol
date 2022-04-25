@@ -44,6 +44,10 @@ contract AxelarSeaERC721 is ERC721, IAxelarSeaNft {
     _burn(tokenId);
   }
 
+  function exists(uint256 tokenId) public view returns(bool) {
+    return _exists(tokenId);
+  }
+
   /**
     * @dev See {IERC721Metadata-tokenURI}.
     */
