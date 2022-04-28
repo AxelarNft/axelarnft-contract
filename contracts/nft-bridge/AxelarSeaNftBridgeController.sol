@@ -176,7 +176,7 @@ contract AxelarSeaNftBridgeController is Ownable, ERC721Holder, ERC1155Holder {
     uint256 nftId = address2nftId[address(nft)] == 0 ? _newNftId() : address2nftId[address(nft)];
 
     if (nft.supportsInterface(0x80ac58cd)) {
-      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, msg.sender, abi.encodeWithSelector(
         AxelarSeaNftBridgeController(address(this)).deployERC721.selector,
         nftId,
         ERC721(address(nft)).name(),
@@ -187,7 +187,7 @@ contract AxelarSeaNftBridgeController is Ownable, ERC721Holder, ERC1155Holder {
 
       emit EnableERC721(nftId, address(nft), chainId);
     } else if (nft.supportsInterface(0xd9b67a26)) {
-      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
+      IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, msg.sender, abi.encodeWithSelector(
         AxelarSeaNftBridgeController(address(this)).deployERC1155.selector,
         nftId
       ));
@@ -221,7 +221,7 @@ contract AxelarSeaNftBridgeController is Ownable, ERC721Holder, ERC1155Holder {
   function bridge(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header) public payable {
     _lock(nftId, tokenId, amount);
 
-    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
+    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, msg.sender, abi.encodeWithSelector(
       AxelarSeaNftBridgeController(address(this)).unlock.selector,
       nftId,
       tokenId,
@@ -233,7 +233,7 @@ contract AxelarSeaNftBridgeController is Ownable, ERC721Holder, ERC1155Holder {
   function bridgeWithPayload(uint128 chainId, uint256 nftId, uint256 tokenId, uint256 amount, bytes calldata header, bytes calldata payload) public payable {
     _lock(nftId, tokenId, amount);
 
-    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, abi.encodeWithSelector(
+    IAxelarSeaNftBridge(registeredBridge[chainId]).bridge{value: msg.value}(chainId, msg.sender, abi.encodeWithSelector(
       AxelarSeaNftBridgeController(address(this)).unlockWithPayload.selector,
       nftId,
       tokenId,

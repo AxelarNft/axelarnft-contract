@@ -33,19 +33,20 @@ contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Own
     emit AddSibling(chainId, chainName, bridgeAddress);
   }
 
-  function _bridgeAxelar(string memory destinationChain, string memory destinationAddress, bytes calldata payload) internal {
+  function _bridgeAxelar(address from, string memory destinationChain, string memory destinationAddress, bytes calldata payload) internal {
     gasReceiver.payNativeGasForContractCall{value: msg.value}(
       address(this),
       destinationChain,
       destinationAddress,
-      payload
+      payload,
+      from
     );
     gateway.callContract(destinationChain, destinationAddress, payload);
   }
 
-  function _bridge(uint128 chainId, bytes calldata payload) override internal {
+  function _bridge(uint128 chainId, address from, bytes calldata payload) override internal {
     require(msg.sender == address(controller), "F");
-    _bridgeAxelar(siblings[chainId].chainName, siblings[chainId].bridgeAddress, payload);
+    _bridgeAxelar(from, siblings[chainId].chainName, siblings[chainId].bridgeAddress, payload);
   }
 
   function _execute(
@@ -58,11 +59,8 @@ contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Own
     // Low level call with payload
     (bool success, bytes memory returndata) = address(controller).call(payload);
 
-    // Revert if not success
+    // TODO: Revert if not success
     require(success, string(returndata));
-    if (!success) {
-      _bridgeAxelar(sourceChain, sourceAddress, payload);
-    }
   }
 
   function _executeWithToken(

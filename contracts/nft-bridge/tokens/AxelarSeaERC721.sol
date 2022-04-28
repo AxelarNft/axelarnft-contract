@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IAxelarSeaNft.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract AxelarSeaERC721 is ERC721, IAxelarSeaNft {
   address public controller;
@@ -18,7 +19,7 @@ contract AxelarSeaERC721 is ERC721, IAxelarSeaNft {
   constructor() ERC721("_", "_") {}
 
   function contractURI() external view returns (string memory) {
-    return string(abi.encodePacked("https://api.axelarsea.com/nftbridge/sharedmetadata/", nftId));
+    return string(abi.encodePacked("https://api.axelarsea.com/nftbridge/sharedmetadata/", Strings.toString(nftId)));
   }
 
   function initialize(
@@ -53,7 +54,7 @@ contract AxelarSeaERC721 is ERC721, IAxelarSeaNft {
     */
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-    return string(abi.encodePacked("https://api.axelarsea.com/nftbridge/tokenmetadata/", nftId, "/", tokenId));
+    return string(abi.encodePacked("https://api.axelarsea.com/nftbridge/tokenmetadata/", Strings.toString(nftId), "/", Strings.toString(tokenId)));
   }
 
   /**

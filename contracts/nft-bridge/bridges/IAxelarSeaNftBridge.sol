@@ -15,8 +15,8 @@ abstract contract IAxelarSeaNftBridge {
     _;
   }
 
-  function _bridge(uint128 chainId, bytes calldata payload) virtual internal;
-  function bridge(uint128 chainId, bytes calldata payload) public payable onlyController {
-    _bridge(chainId, payload);
+  function _bridge(uint128 chainId, address from, bytes calldata payload) virtual internal;
+  function bridge(uint128 chainId, address from, bytes calldata payload) public payable onlyController {
+    _bridge(chainId, from, payload);
   }
 }
