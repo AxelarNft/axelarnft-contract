@@ -59,6 +59,7 @@ async function main() {
     collection.contractAddress = nftAddress;
     collection.nftId = data.sampleNftId[sourceChainId];
     collection.chainId = chainId;
+    collection.original = false;
 
     await axios.post('https://api.axelarsea.com/api/nft/collections', collection);
   }
