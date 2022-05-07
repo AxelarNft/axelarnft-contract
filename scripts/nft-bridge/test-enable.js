@@ -51,11 +51,11 @@ async function main() {
 
   const gasLimit = 300000;
 
-  await contracts.bridgeController.enable(43113, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.01") }).then(tx => tx.wait());
-  await contracts.bridgeController.enable(4002, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.01") }).then(tx => tx.wait());
-  await contracts.bridgeController.enable(80001, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.01") }).then(tx => tx.wait());
-  await contracts.bridgeController.enable(1287, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.01") }).then(tx => tx.wait());
-  // await contracts.bridgeController.enable(3, data.sampleNft[chainId], { value: ethers.utils.parseEther("1") }).then(tx => tx.wait());
+  // await contracts.bridgeController.enable(43113, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.5") }).then(tx => tx.wait());
+  // await contracts.bridgeController.enable(4002, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.05") }).then(tx => tx.wait());
+  // await contracts.bridgeController.enable(80001, data.sampleNft[chainId], { value: ethers.utils.parseEther("0.2") }).then(tx => tx.wait());
+  await contracts.bridgeController.enable(1287, data.sampleNft[chainId], { value: ethers.utils.parseEther("1") }).then(tx => tx.wait());
+  // await contracts.bridgeController.enable(3, data.sampleNft[chainId], { value: ethers.utils.parseEther("4") }).then(tx => tx.wait());
 
   // for (let destChainId in data.bridgeAxelar) {
   //   if (destChainId != chainId) {

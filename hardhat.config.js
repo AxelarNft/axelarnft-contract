@@ -96,7 +96,7 @@ module.exports = {
       accounts: [privateKeyTest]
     },
     polygontestnet: {
-      url: "https://rpc-mumbai.maticvigil.com",
+      url: "https://matic-mumbai.chainstacklabs.com",
       chainId: 80001,
       accounts: [privateKeyTest]
     },

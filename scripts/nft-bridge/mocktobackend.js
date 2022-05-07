@@ -52,14 +52,14 @@ async function main() {
 
   const gasLimit = 300000;
 
-  for (let sourceChainId of [4002, 43113, 80001]) {
+  for (let sourceChainId of [3, 1287, 4002, 43113, 80001]) {
     let collection = (await axios.get('https://api.axelarsea.com/api/nft/collections/' + ethers.utils.getAddress(data.sampleNft[sourceChainId]) + '/' + sourceChainId)).data;
     let nftAddress = await contracts.bridgeController.nftId2address(data.sampleNftId[sourceChainId]);
 
     collection.contractAddress = nftAddress;
     collection.nftId = data.sampleNftId[sourceChainId];
     collection.chainId = chainId;
-    collection.original = false;
+    collection.original = sourceChainId == chainId;
 
     await axios.post('https://api.axelarsea.com/api/nft/collections', collection);
   }
