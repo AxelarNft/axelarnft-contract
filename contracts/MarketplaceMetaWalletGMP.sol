@@ -14,6 +14,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+interface IWETH is IERC20 {
+  function deposit() external payable;
+  function transfer(address to, uint value) external returns (bool);
+  function withdraw(uint) external;
+}
+
 // Temporary use for testnet campaign
 contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable {
   using SafeERC20 for IERC20;
@@ -23,11 +29,19 @@ contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable
   AxelarSeaMarketplace public immutable master;
   IAxelarGasReceiver public immutable gasReceiver;
   string public addressthis;
+  IWETH public immutable weth;
 
-  constructor(address _master, address _gateway, address _gasReceiver) IAxelarExecutable(_gateway) {
+  mapping(bytes32 => string) public whitelisted;
+
+  constructor(address _master, address _gateway, address _gasReceiver, address _WETH) IAxelarExecutable(_gateway) {
     master = AxelarSeaMarketplace(_master);
     gasReceiver = IAxelarGasReceiver(_gasReceiver);
     addressthis = Strings.toHexString(uint160(address(this)), 20);
+    weth = IWETH(_WETH);
+  }
+
+  function addWhitelist(string memory sourceChain, string memory addr) public onlyOwner {
+    whitelisted[keccak256(bytes(sourceChain))] = addr;
   }
 
   function buyERC721(address walletAddress, IERC721 token, address seller, uint256 tokenId) internal {
@@ -58,18 +72,24 @@ contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable
     string calldata destinationChain,
     bytes calldata payload,
     string calldata symbol,
-    uint256 amount
+    uint256 gasAmount
   ) public payable {
-    gasReceiver.payNativeGasForContractCallWithToken{value: msg.value}(
+    uint256 amount = msg.value - gasAmount;
+
+    gasReceiver.payNativeGasForContractCallWithToken{value: gasAmount}(
       address(this),
       destinationChain,
-      addressthis,
+      whitelisted[keccak256(bytes(destinationChain))],
       payload,
       symbol,
       amount,
       msg.sender
     );
-    gateway.callContractWithToken(destinationChain, addressthis, payload, symbol, amount);
+
+    weth.deposit{value: amount}();
+    weth.approve(address(gateway), amount);
+
+    gateway.callContractWithToken(destinationChain, whitelisted[keccak256(bytes(destinationChain))], payload, symbol, amount);
   }
 
   function _executeWithToken(
@@ -79,7 +99,7 @@ contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable
     string memory tokenSymbol,
     uint256 amount
   ) internal virtual override {
-    require(keccak256(bytes(sourceAddress)) == keccak256(bytes(addressthis)), "Fake");
+    require(keccak256(bytes(whitelisted[keccak256(bytes(sourceChain))])) == keccak256(bytes(sourceAddress)), "Fake");
     (address walletAddress, IERC721 token, address seller, uint256 tokenId) = abi.decode(payload, (address, IERC721, address, uint256));
     buyERC721(walletAddress, token, seller, tokenId);
   }
