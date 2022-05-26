@@ -115,6 +115,12 @@ module.exports = {
       chainId: 1287,
       accounts: [privateKeyTest]
     },
+    kiln: {
+      url: "https://rpc.kiln.themerge.dev/",
+      chainId: 1337802,
+      gasPrice: 300000000000,
+      accounts: [privateKeyTest]
+    },
 
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
