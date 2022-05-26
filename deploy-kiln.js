@@ -10,7 +10,7 @@ const { privateKey, privateKeyTest, bscscanApiKey } = require('./secrets.json');
 async function main() {
   let contracts = [];
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 110; i++) {
     // Use your wallet's private key to deploy the contract
     const provider = new ethers.providers.JsonRpcProvider('https://rpc.kiln.themerge.dev')
     const wallet = new ethers.Wallet(privateKey, provider)
@@ -32,9 +32,10 @@ async function main() {
   }
 
   // Add 1 time to prevent failure
-  for (let i = 0; i < 2; i++) {
-    for (let j = 0; j < 2; j++) {
+  for (let i = 0; i < 11; i++) {
+    for (let j = 0; j < 11; j++) {
       await contracts[i].hello().then(tx => tx.wait());
+      console.log(i+1, j+1);
     }
   }
 }
