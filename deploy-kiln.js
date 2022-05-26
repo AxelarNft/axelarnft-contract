@@ -5,7 +5,7 @@
 // Runtime Environment's members available in the global scope.
 const ethers = require("ethers");
 const fs = require("fs");
-const { privateKey, privateKeyTest, bscscanApiKey } = require('./secrets.json');
+const { privateKey } = require('./secrets.json');
 
 async function main() {
   let contracts = [];
