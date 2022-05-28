@@ -1,13 +1,17 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./IAxelarSeaNftInitializable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
+import "../meta-transactions/NativeMetaTransaction.sol";
+import "../meta-transactions/ContextMixin.sol";
+import "./IAxelarSeaNftInitializable.sol";
+
+contract AxelarSeaNft721 is Ownable, ERC721Enumerable, NativeMetaTransaction, ContextMixin, IAxelarSeaNftInitializable {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
@@ -20,6 +24,7 @@ contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
 
   uint256 public exclusiveLevel;
   bytes32 public merkleRoot;
+  uint256 public mintPerWalletAddress;
   uint256 public mintPriceStart;
   uint256 public mintPriceEnd;
   uint256 public mintPriceStep;
@@ -27,13 +32,15 @@ contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
   uint256 public mintStart;
   uint256 public mintEnd;
 
-  Counters.Counter private supply;
+  mapping(address => bool) public minters;
+  mapping(address => uint256) public walletMinted;
+
+  modifier onlyMinter {
+    require(minters[msgSender()], "Forbidden");
+    _;
+  }
 
   constructor() ERC721("_", "_") {}
-
-  function totalSupply() public view returns (uint256) {
-    return supply.current();
-  }
 
   function contractURI() external view returns (string memory) {
     return string(abi.encodePacked("https://api-nftdrop.axelarsea.com/contractMetadata/", uint256(collectionId).toHexString()));
@@ -57,6 +64,7 @@ contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
     (
       uint256 _exclusiveLevel,
       bytes32 _merkleRoot,
+      uint256 _mintPerWalletAddress,
       uint256 _mintPriceStart,
       uint256 _mintPriceEnd,
       uint256 _mintPriceStep,
@@ -71,6 +79,7 @@ contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
         uint256,
         uint256,
         uint256,
+        uint256,
         address,
         uint256,
         uint256
@@ -81,12 +90,44 @@ contract AxelarSeaNft721 is Ownable, ERC721, IAxelarSeaNftInitializable {
 
     exclusiveLevel = _exclusiveLevel;
     merkleRoot = _merkleRoot;
+    mintPerWalletAddress = _mintPerWalletAddress;
     mintPriceStart = _mintPriceStart;
     mintPriceEnd = _mintPriceEnd;
     mintPriceStep = _mintPriceStep;
     mintTokenAddress = _mintTokenAddress;
     mintStart = _mintStart;
     mintEnd = _mintEnd;
+  }
+
+  function _mintInternal(address to, uint256 amount) internal {
+    walletMinted[to] += amount;
+    require(walletMinted[to] <= mintPerWalletAddress, "Mint Limited");
+
+    unchecked {
+      uint256 supply = totalSupply();
+
+      if (amount == 1) {
+        _safeMint(to, supply + 1);
+      } else {
+        for (uint256 i = 1; i <= amount; i++) {
+          _safeMint(to, supply + i);
+        }
+      }
+    }
+  }
+
+  function _pay(address from, uint256 amount) internal {
+    
+  }
+
+  function merkleMint(bytes32[] calldata proof, uint256 amount) public {
+    address sender = msgSender();
+    require(MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(sender))), "Not whitelisted");
+    _mintInternal(sender, amount);
+  }
+
+  function mint(address to, uint256 amount) public onlyMinter {
+    _mintInternal(to, amount);
   }
 
   function exists(uint256 tokenId) public view returns(bool) {
