@@ -2,32 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import {EIP712Base} from "./EIP712Base.sol";
+import {MetaTransactionVerifier} from "./MetaTransactionVerifier.sol";
 
-contract NativeMetaTransaction is EIP712Base {
-    bytes32 private constant META_TRANSACTION_TYPEHASH = keccak256(
-        bytes(
-            "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
-        )
-    );
-    event MetaTransactionExecuted(
-        address userAddress,
-        address payable relayerAddress,
-        bytes functionSignature
-    );
-    mapping(uint256 => bool) nonces;
-
-    /*
-     * Meta transaction structure.
-     * No point of including value field here as if user is doing value transfer then he has the funds to pay for gas
-     * He should call the desired function directly in that case.
-     */
-    struct MetaTransaction {
-        uint256 nonce;
-        address from;
-        bytes functionSignature;
-    }
-
+contract NativeMetaTransaction is MetaTransactionVerifier {
     function executeMetaTransaction(
         address userAddress,
         bytes memory functionSignature,
@@ -35,23 +12,14 @@ contract NativeMetaTransaction is EIP712Base {
         bytes32 sigR,
         bytes32 sigS,
         uint8 sigV
-    ) public payable returns (bytes memory) {
-        require(!nonces[nonce], "Already run");
-
-        MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonce,
-            from: userAddress,
-            functionSignature: functionSignature
-        });
-
-        require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
-            "Signer and signature do not match"
-        );
-
-        // mark nonce to prevent tx reuse
-        nonces[nonce] = true;
-
+    ) public payable verifyMetaTransaction(
+        userAddress,
+        functionSignature,
+        nonce,
+        sigR,
+        sigS,
+        sigV
+    ) returns (bytes memory) {
         emit MetaTransactionExecuted(
             userAddress,
             payable(msg.sender),
@@ -65,39 +33,5 @@ contract NativeMetaTransaction is EIP712Base {
         require(success, "Function call not successful");
 
         return returnData;
-    }
-
-    function hashMetaTransaction(MetaTransaction memory metaTx)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encode(
-                    META_TRANSACTION_TYPEHASH,
-                    metaTx.nonce,
-                    metaTx.from,
-                    keccak256(metaTx.functionSignature)
-                )
-            );
-    }
-
-    function verify(
-        address signer,
-        MetaTransaction memory metaTx,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
-    ) internal view returns (bool) {
-        require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
-        return
-            signer ==
-            ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
-                sigV,
-                sigR,
-                sigS
-            );
     }
 }
