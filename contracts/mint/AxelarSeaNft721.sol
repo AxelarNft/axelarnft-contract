@@ -31,7 +31,6 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
   IERC20 public mintTokenAddress;
   uint256 public mintStart;
   uint256 public mintEnd;
-
   uint256 public maxSupply;
 
   mapping(address => bool) public minters;
@@ -58,7 +57,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     uint256 mintPriceStep,
     IERC20 mintTokenAddress,
     uint256 mintStart,
-    uint256 mintEnd
+    uint256 mintEnd,
+    uint256 maxSupply
   );
   function updateConfig(
     bytes32 _merkleRoot,
@@ -68,7 +68,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     uint256 _mintPriceStep,
     IERC20 _mintTokenAddress,
     uint256 _mintStart,
-    uint256 _mintEnd
+    uint256 _mintEnd,
+    uint256 _maxSupply
   ) public onlyOwner {
     require(_mintEnd >= _mintStart, "Invalid timestamp");
 
@@ -80,6 +81,7 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     mintTokenAddress = _mintTokenAddress;
     mintStart = _mintStart;
     mintEnd = _mintEnd;
+    maxSupply = _maxSupply;
 
     emit UpdateConfig(
       collectionId,
@@ -91,7 +93,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
       _mintPriceStep,
       _mintTokenAddress,
       _mintStart,
-      _mintEnd
+      _mintEnd,
+      _maxSupply
     );
   }
 
@@ -119,7 +122,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
       uint256 _mintPriceStep,
       IERC20 _mintTokenAddress,
       uint256 _mintStart,
-      uint256 _mintEnd
+      uint256 _mintEnd,
+      uint256 _maxSupply
     ) = abi.decode(
       data,
       (
@@ -130,6 +134,7 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
         uint256,
         uint256,
         IERC20,
+        uint256,
         uint256,
         uint256
       )
@@ -147,7 +152,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
       _mintPriceStep,
       _mintTokenAddress,
       _mintStart,
-      _mintEnd
+      _mintEnd,
+      _maxSupply
     );
   }
 
