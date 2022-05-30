@@ -192,7 +192,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     require(block.timestamp >= mintStart && block.timestamp <= mintEnd, "Not started");
 
     if (mintPriceStart > 0 || mintPriceEnd > 0) {
-      
+      uint256 price = mintPrice();
+      mintTokenAddress.transferFrom(from, fundAddress, price * amount);
     }
   }
 
@@ -205,10 +206,10 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     return MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(toCheck)));
   }
 
-  function mintMerkle(uint256 amount, bytes32[] calldata proof) public {
-    require(checkMerkle(msg.sender, proof), "Not whitelisted");
+  function mintMerkle(address to, uint256 amount, bytes32[] calldata proof) public {
+    require(checkMerkle(to, proof), "Not whitelisted");
     _pay(msg.sender, amount);
-    _mintInternal(msg.sender, amount);
+    _mintInternal(to, amount);
   }
 
   function mintSignature(
