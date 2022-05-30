@@ -32,6 +32,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
   uint256 public mintStart;
   uint256 public mintEnd;
 
+  uint256 public maxSupply;
+
   mapping(address => bool) public minters;
   mapping(address => uint256) public walletMinted;
 
@@ -153,9 +155,10 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     walletMinted[to] += amount;
     require(walletMinted[to] <= mintPerWalletAddress, "Mint Limited");
 
-    unchecked {
-      uint256 supply = totalSupply();
+    uint256 supply = totalSupply();
+    require(supply + amount <= maxSupply, "Supply maxed");
 
+    unchecked {
       if (amount == 1) {
         _safeMint(to, supply + 1);
       } else {
