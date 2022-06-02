@@ -10,11 +10,14 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 
+import "./AxelarSeaProjectRegistry.sol";
+
 contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, IAxelarSeaNftInitializable {
   using Strings for uint256;
 
   bool private initialized;
 
+  AxelarSeaProjectRegistry public registry;
   address public fundAddress;
 
   bytes32 public collectionId;
@@ -33,8 +36,12 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
   uint256 public mintEnd;
   uint256 public maxSupply;
 
+  mapping(address => bool) public exclusiveContract;
   mapping(address => bool) public minters;
   mapping(address => uint256) public walletMinted;
+
+  uint256 public mintFeeOverride = 0;
+  bool public enableMintFeeOverride = false;
 
   modifier onlyMinter(address addr) {
     require(minters[addr], "Forbidden");
@@ -43,12 +50,9 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
 
   constructor() ERC721("_", "_") {}
 
-  function contractURI() external view returns (string memory) {
-    return string(abi.encodePacked("https://api-nftdrop.axelarsea.com/contractMetadata/", uint256(collectionId).toHexString()));
-  }
-
   event UpdateConfig(
     bytes32 indexed collectionId,
+    bytes32 indexed projectId,
     uint256 exclusiveLevel,
     bytes32 merkleRoot,
     uint256 mintPerWalletAddress,
@@ -85,6 +89,7 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
 
     emit UpdateConfig(
       collectionId,
+      projectId,
       exclusiveLevel,
       _merkleRoot,
       _mintPerWalletAddress,
@@ -102,12 +107,14 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     address owner,
     bytes32 _collectionId,
     bytes32 _projectId,
-    string memory _nftName, 
+    string memory _nftName,
     string memory _nftSymbol,
     bytes memory data
   ) public {
     require(initialized, "Initialized");
 
+    initialized = true;
+    registry = AxelarSeaProjectRegistry(msg.sender);
     collectionId = _collectionId;
     projectId = _projectId;
     nftName = _nftName;
@@ -157,6 +164,36 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     );
   }
 
+  event SetMinter(address indexed minter, bool enabled);
+  function setMinter(address minter, bool enabled) public onlyOwner {
+    minters[minter] = enabled;
+    emit SetMinter(minter, enabled);
+  }
+
+  event SetExclusiveContract(address indexed addr, bool enabled);
+  function setExclusiveContract(address addr, bool enabled) public {
+    require(msg.sender == owner() || registry.operators(msg.sender), "Forbidden");
+    exclusiveContract[addr] = enabled;
+    emit SetExclusiveContract(addr, enabled);
+  }
+
+  event OverrideMintFee(address indexed overrider, uint256 newFee, bool overrided);
+  function overrideMintFee(uint256 newFee, bool overrided) public {
+    require(registry.operators(msg.sender), "Forbidden");
+    enableMintFeeOverride = overrided;
+    mintFeeOverride = newFee;
+    emit OverrideMintFee(msg.sender, newFee, overrided);
+  }
+
+  function _beforeTokenTransfer(
+    address,
+    address,
+    uint256
+  ) internal override {
+    require(exclusiveLevel < 2, "Soulbound");
+    require(exclusiveLevel < 1 || registry.axelarSeaContract(msg.sender) || exclusiveContract[msg.sender], "Forbidden");
+  }
+
   function _mintInternal(address to, uint256 amount) internal {
     walletMinted[to] += amount;
     require(walletMinted[to] <= mintPerWalletAddress, "Mint Limited");
@@ -173,6 +210,10 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
         }
       }
     }
+  }
+
+  function mintFee() public view returns(uint256) {
+    return (enableMintFeeOverride ? mintFeeOverride : registry.baseMintFee());
   }
 
   function mintPrice() public view returns(uint256) {
@@ -201,8 +242,11 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     require(block.timestamp >= mintStart && block.timestamp <= mintEnd, "Not started");
 
     if (mintPriceStart > 0 || mintPriceEnd > 0) {
-      uint256 price = mintPrice();
-      mintTokenAddress.transferFrom(from, fundAddress, price * amount);
+      uint256 totalPrice = mintPrice() * amount;
+      uint256 fee = totalPrice * mintFee() / 1e18;
+
+      mintTokenAddress.transferFrom(from, registry.feeAddress(), fee);
+      mintTokenAddress.transferFrom(from, fundAddress, totalPrice - fee);
     }
   }
 
@@ -248,12 +292,17 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     return _exists(tokenId);
   }
 
+  // Opensea standard contractURI
+  function contractURI() external view returns (string memory) {
+    return string(abi.encodePacked(registry.baseContractURI(), uint256(collectionId).toHexString()));
+  }
+
   /**
     * @dev See {IERC721Metadata-tokenURI}.
     */
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-    return string(abi.encodePacked("https://api-nftdrop.axelarsea.com/tokenMetadata/", uint256(collectionId).toHexString(), "/", tokenId.toString()));
+    return string(abi.encodePacked(registry.baseTokenURI(), uint256(collectionId).toHexString(), "/", tokenId.toString()));
   }
 
   /**

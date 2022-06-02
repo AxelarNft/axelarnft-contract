@@ -24,9 +24,28 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
   // 1 = Member, 2 = Admin
   mapping(bytes32 => mapping(address => uint256)) public projectMember;
 
+  // Minting fee
+  address public feeAddress;
+  uint256 public baseMintFee = 0.02 ether;
+
+  string public baseContractURI = "https://api-nftdrop.axelarsea.com/contractMetadata/";
+  string public baseTokenURI = "https://api-nftdrop.axelarsea.com/tokenMetadata/";
+
+  constructor() {
+    feeAddress = msg.sender;
+  }
+
   modifier onlyOperator {
     require(operators[msgSender()], "Not Operator");
     _;
+  }
+
+  event SetMintFee(address indexed addr, uint256 fee);
+  function setMintFee(address addr, uint256 fee) public onlyOwner {
+    require(fee <= 1 ether, "Too much fee");
+    feeAddress = addr;
+    baseMintFee = fee;
+    emit SetMintFee(addr, fee);
   }
 
   event SetOperator(address indexed operator, bool enabled);
@@ -91,5 +110,13 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     nft.initialize(owner, collectionId, projectId, name, symbol, data);
     linkProject(address(nft), projectId);
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
+  }
+
+  function setBaseContractURI(string memory _uri) public onlyOwner {
+    baseContractURI = _uri;
+  }
+
+  function setBaseTokenURI(string memory _uri) public onlyOwner {
+    baseTokenURI = _uri;
   }
 }
