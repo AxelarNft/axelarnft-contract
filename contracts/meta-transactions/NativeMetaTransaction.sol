@@ -12,14 +12,9 @@ contract NativeMetaTransaction is MetaTransactionVerifier {
         bytes32 sigR,
         bytes32 sigS,
         uint8 sigV
-    ) public payable verifyMetaTransaction(
-        userAddress,
-        functionSignature,
-        nonce,
-        sigR,
-        sigS,
-        sigV
-    ) returns (bytes memory) {
+    ) public payable returns (bytes memory) {
+        verifyMetaTransaction(userAddress, functionSignature, nonce, sigR, sigS, sigV);
+
         emit MetaTransactionExecuted(
             userAddress,
             payable(msg.sender),

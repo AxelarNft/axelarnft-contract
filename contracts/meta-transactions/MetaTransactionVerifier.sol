@@ -28,14 +28,14 @@ contract MetaTransactionVerifier is EIP712Base {
         bytes functionSignature;
     }
 
-    modifier verifyMetaTransaction(
+    function verifyMetaTransaction(
         address userAddress,
         bytes memory functionSignature,
         uint256 nonce,
         bytes32 sigR,
         bytes32 sigS,
         uint8 sigV
-    ) {
+    ) internal {
         require(!nonces[nonce], "Already run");
 
         MetaTransaction memory metaTx = MetaTransaction({
@@ -51,8 +51,6 @@ contract MetaTransactionVerifier is EIP712Base {
 
         // mark nonce to prevent tx reuse
         nonces[nonce] = true;
-
-        _;
     }
 
     function hashMetaTransaction(MetaTransaction memory metaTx)

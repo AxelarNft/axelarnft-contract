@@ -120,48 +120,50 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     nftName = _nftName;
     nftSymbol = _nftSymbol;
 
-    (
-      uint256 _exclusiveLevel,
-      bytes32 _merkleRoot,
-      uint256 _mintPerWalletAddress,
-      uint256 _mintPriceStart,
-      uint256 _mintPriceEnd,
-      uint256 _mintPriceStep,
-      IERC20 _mintTokenAddress,
-      uint256 _mintStart,
-      uint256 _mintEnd,
-      uint256 _maxSupply
-    ) = abi.decode(
-      data,
+    {
       (
-        uint256,
-        bytes32,
-        uint256,
-        uint256,
-        uint256,
-        uint256,
-        IERC20,
-        uint256,
-        uint256,
-        uint256
-      )
-    );
+        uint256 _exclusiveLevel,
+        bytes32 _merkleRoot,
+        uint256 _mintPerWalletAddress,
+        uint256 _mintPriceStart,
+        uint256 _mintPriceEnd,
+        uint256 _mintPriceStep,
+        IERC20 _mintTokenAddress,
+        uint256 _mintStart,
+        uint256 _mintEnd,
+        uint256 _maxSupply
+      ) = abi.decode(
+        data,
+        (
+          uint256,
+          bytes32,
+          uint256,
+          uint256,
+          uint256,
+          uint256,
+          IERC20,
+          uint256,
+          uint256,
+          uint256
+        )
+      );
+
+      exclusiveLevel = _exclusiveLevel;
+
+      updateConfig(
+        _merkleRoot,
+        _mintPerWalletAddress,
+        _mintPriceStart,
+        _mintPriceEnd,
+        _mintPriceStep,
+        _mintTokenAddress,
+        _mintStart,
+        _mintEnd,
+        _maxSupply
+      );
+    }
 
     transferOwnership(owner);
-
-    exclusiveLevel = _exclusiveLevel;
-
-    updateConfig(
-      _merkleRoot,
-      _mintPerWalletAddress,
-      _mintPriceStart,
-      _mintPriceEnd,
-      _mintPriceStep,
-      _mintTokenAddress,
-      _mintStart,
-      _mintEnd,
-      _maxSupply
-    );
   }
 
   event SetMinter(address indexed minter, bool enabled);
@@ -274,6 +276,7 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
     bytes memory payload
   ) public 
     onlyMinter(operatorAddress)
+  {
     verifyMetaTransaction(
       operatorAddress,
       payload,
@@ -281,8 +284,8 @@ contract AxelarSeaNft721 is Ownable, ERC721Enumerable, MetaTransactionVerifier, 
       sigR,
       sigS,
       sigV
-    )
-  {
+    );
+
     (address to, uint256 amount) = abi.decode(payload, (address, uint256));
     _pay(msg.sender, amount);
     _mintInternal(to, amount);

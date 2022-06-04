@@ -5,12 +5,26 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 
-async function main() {
-  const ERC721templateFactory = await hre.ethers.getContractFactory("AxelarSeaNft721");
-  const ERC721template = await ERC721templateFactory.deploy("AxelarSea Moonbeam", "AXLSEAGLMR");
-  await ERC721template.deployed();
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-  console.log("Sample NFT deployed to:", nft.address);
+async function deploy(contractName, ...args) {
+  // Deploy contract
+  const Contract = await hre.ethers.getContractFactory(contractName);
+  const contract = await Contract.deploy(...args);
+  await contract.deployed();
+  console.log(contractName + " deployed to:", contract.address);
+
+  await wait(6000);
+
+  return contract;
+}
+
+async function main() {
+  const ERC721EnumerableTemplate = await deploy("AxelarSeaNft721Enumerable");
+
+  const axelarSeaProjectRegistry = await deploy("AxelarSeaProjectRegistry");
+
+  await axelarSeaProjectRegistry.setTemplate(ERC721EnumerableTemplate.address, true).then(tx => tx.wait());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

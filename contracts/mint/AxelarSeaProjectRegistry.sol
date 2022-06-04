@@ -76,14 +76,21 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
 
   event SetProjectMember(bytes32 indexed projectId, address indexed member, uint256 level);
   function setProjectMember(bytes32 projectId, address member, uint256 level) public {
-    require(projectMember[projectId][member] == 2 && member != projectOwner[projectId], "Forbidden");
+    require(projectMember[projectId][msgSender()] == 2 && member != projectOwner[projectId], "Forbidden");
     projectMember[projectId][member] = level;
     emit SetProjectMember(projectId, member, level);
   }
 
+  event SetProjectOwner(bytes32 indexed projectId, address indexed owner);
+  function setProjectOwner(bytes32 projectId, address owner) public {
+    require(msgSender() == projectOwner[projectId] && projectMember[projectId][owner] == 2, "Forbidden");
+    projectOwner[projectId] = owner;
+    emit SetProjectOwner(projectId, owner);
+  }
+
   // Only linkable if that NFT implement Ownable
   event LinkProject(address indexed contractAddress, bytes32 projectId);
-  function linkProject(address contractAddress, bytes32 projectId) public {
+  function linkProject(address contractAddress, bytes32 projectId) public nonReentrant {
     // Check support interface
     require(IERC165(contractAddress).supportsInterface(0x80ac58cd) || IERC165(contractAddress).supportsInterface(0xd9b67a26), "Not NFT");
 
@@ -105,7 +112,7 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     string memory name,
     string memory symbol,
     bytes memory data
-  ) public onlyOperator {
+  ) public onlyOperator nonReentrant {
     IAxelarSeaNftInitializable nft = IAxelarSeaNftInitializable(Clones.clone(template));
     nft.initialize(owner, collectionId, projectId, name, symbol, data);
     linkProject(address(nft), projectId);
