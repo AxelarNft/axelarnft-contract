@@ -1,5 +1,7 @@
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-waffle");
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
+import { task } from "hardhat/config";
+import { ethers } from "hardhat";
 const { privateKey, privateKeyTest, bscscanApiKey } = require('./secrets.json');
 
 // This is a sample Hardhat task. To learn how to create your own go to
