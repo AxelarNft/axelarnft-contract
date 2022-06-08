@@ -76,14 +76,14 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
 
   event SetProjectMember(bytes32 indexed projectId, address indexed member, uint256 level);
   function setProjectMember(bytes32 projectId, address member, uint256 level) public {
-    require(projectMember[projectId][msgSender()] == 2 && member != projectOwner[projectId], "Forbidden");
+    require(level <= 2 && projectMember[projectId][msgSender()] == 2 && member != projectOwner[projectId] && projectOwner[projectId] != address(0), "Forbidden");
     projectMember[projectId][member] = level;
     emit SetProjectMember(projectId, member, level);
   }
 
   event SetProjectOwner(bytes32 indexed projectId, address indexed owner);
   function setProjectOwner(bytes32 projectId, address owner) public {
-    require(msgSender() == projectOwner[projectId] && projectMember[projectId][owner] == 2, "Forbidden");
+    require(msgSender() == projectOwner[projectId] && projectMember[projectId][owner] == 2 && projectOwner[projectId] != address(0), "Forbidden");
     projectOwner[projectId] = owner;
     emit SetProjectOwner(projectId, owner);
   }

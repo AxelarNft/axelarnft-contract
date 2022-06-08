@@ -7,9 +7,9 @@ import "./AxelarSeaNftBase.sol";
 contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
   constructor() ERC721("_", "_") {}
 
-  function _mintInternal(address to, uint256 amount) internal override {
+  function _mintInternal(address to, uint256 maxAmount, uint256 amount) internal override {
     walletMinted[to] += amount;
-    require(walletMinted[to] <= mintPerWalletAddress, "Mint Limited");
+    require(walletMinted[to] <= maxAmount, "Mint Limited");
 
     uint256 supply = totalSupply();
     require(supply + amount <= maxSupply, "Supply maxed");
@@ -27,10 +27,11 @@ contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
 
   function _beforeTokenTransfer(
     address from,
-    address,
-    uint256
+    address to,
+    uint256 tokenId
   ) internal override {
     AxelarSeaNftBase._beforeTokenTransferCheck(from);
+    super._beforeTokenTransfer(from, to, tokenId);
   }
 
   function exists(uint256 tokenId) public override view returns(bool) {

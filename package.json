@@ -32,9 +32,12 @@
 		"typescript": "^4.7.3"
 	},
 	"dependencies": {
-		"@axelar-network/axelar-cgp-solidity": "https://github.com/axelarnetwork/axelar-cgp-solidity",
-		"@axelar-network/axelar-local-dev": "https://github.com/axelarnetwork/axelar-local-gmp-examples",
+		"@axelar-network/axelar-cgp-solidity": "^3.2.1",
+		"@rari-capital/solmate": "^6.4.0",
+		"@typechain/ethers-v5": "^10.0.0",
 		"axios": "^0.27.2",
-		"lodash": "^4.17.21"
+		"dotenv": "^16.0.1",
+		"lodash": "^4.17.21",
+		"typechain": "^8.0.0"
 	}
 }

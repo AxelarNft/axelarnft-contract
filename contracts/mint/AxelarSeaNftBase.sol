@@ -26,7 +26,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
 
   uint256 public exclusiveLevel;
   bytes32 public merkleRoot;
-  uint256 public mintPerWalletAddress;
+  // uint256 public mintPerWalletAddress;
   uint256 public mintPriceStart;
   uint256 public mintPriceEnd;
   uint256 public mintPriceStep;
@@ -54,7 +54,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     bytes32 indexed projectId,
     uint256 exclusiveLevel,
     bytes32 merkleRoot,
-    uint256 mintPerWalletAddress,
+    // uint256 mintPerWalletAddress,
     uint256 mintPriceStart,
     uint256 mintPriceEnd,
     uint256 mintPriceStep,
@@ -65,7 +65,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
   );
   function updateConfig(
     bytes32 _merkleRoot,
-    uint256 _mintPerWalletAddress,
+    // uint256 _mintPerWalletAddress,
     uint256 _mintPriceStart,
     uint256 _mintPriceEnd,
     uint256 _mintPriceStep,
@@ -77,7 +77,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     require(_mintEnd >= _mintStart, "Invalid timestamp");
 
     merkleRoot = _merkleRoot;
-    mintPerWalletAddress = _mintPerWalletAddress;
+    // mintPerWalletAddress = _mintPerWalletAddress;
     mintPriceStart = _mintPriceStart;
     mintPriceEnd = _mintPriceEnd;
     mintPriceStep = _mintPriceStep;
@@ -91,7 +91,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
       projectId,
       exclusiveLevel,
       _merkleRoot,
-      _mintPerWalletAddress,
+      // _mintPerWalletAddress,
       _mintPriceStart,
       _mintPriceEnd,
       _mintPriceStep,
@@ -123,7 +123,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
       (
         uint256 _exclusiveLevel,
         bytes32 _merkleRoot,
-        uint256 _mintPerWalletAddress,
+        // uint256 _mintPerWalletAddress,
         uint256 _mintPriceStart,
         uint256 _mintPriceEnd,
         uint256 _mintPriceStep,
@@ -136,7 +136,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
         (
           uint256,
           bytes32,
-          uint256,
+          // uint256,
           uint256,
           uint256,
           uint256,
@@ -151,7 +151,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
 
       updateConfig(
         _merkleRoot,
-        _mintPerWalletAddress,
+        // _mintPerWalletAddress,
         _mintPriceStart,
         _mintPriceEnd,
         _mintPriceStep,
@@ -193,7 +193,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     }
   }
 
-  function _mintInternal(address to, uint256 amount) internal virtual;
+  function _mintInternal(address to, uint256 maxAmount, uint256 amount) internal virtual;
 
   function mintFee() public view returns(uint256) {
     return (enableMintFeeOverride ? mintFeeOverride : registry.baseMintFee());
@@ -235,7 +235,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
 
   function mint(address to, uint256 amount) public onlyMinter(msg.sender) nonReentrant {
     _pay(msg.sender, amount);
-    _mintInternal(to, amount);
+    _mintInternal(to, type(uint256).max, amount);
   }
 
   function checkMerkle(address toCheck, uint256 maxAmount, bytes32[] calldata proof) public view returns(bool) {
@@ -245,7 +245,7 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
   function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public nonReentrant {
     require(checkMerkle(to, maxAmount, proof), "Not whitelisted");
     _pay(msg.sender, amount);
-    _mintInternal(to, amount);
+    _mintInternal(to, maxAmount, amount);
   }
 
   function mintSignature(
@@ -265,9 +265,9 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
       sigV
     );
 
-    (address to, uint256 amount) = abi.decode(payload, (address, uint256));
+    (address to, uint256 maxAmount, uint256 amount) = abi.decode(payload, (address, uint256, uint256));
     _pay(msg.sender, amount);
-    _mintInternal(to, amount);
+    _mintInternal(to, maxAmount, amount);
   }
 
   function exists(uint256 tokenId) public virtual view returns(bool);
