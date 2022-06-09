@@ -96,6 +96,7 @@ describe(`AxelarSea — initial test suite`, function () {
 
     projectRegistry = await deployContract("AxelarSeaProjectRegistry", owner);
     nft721template = await deployContract("AxelarSeaNft721Enumerable", owner);
+    nftMerkleMinterTemplate = await deployContract("AxelarSeaNftMerkleMinter", owner);
 
     ({
       EIP1271WalletFactory,
@@ -182,6 +183,16 @@ describe(`AxelarSea — initial test suite`, function () {
         unauthorized: someone,
         revertMessage: ONLYOWNER_REVERT,
       }, nft721template.address, true)
+    })
+
+    it('Should be able to set minter template', async () => {
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftMerkleMinterTemplate.address, true)
     })
 
     // 2% fee
@@ -286,16 +297,29 @@ describe(`AxelarSea — initial test suite`, function () {
         .to.be.revertedWith("Forbidden")
     })
 
-    // it('Should be able to deploy NFT', async () => {
-    //   let blockTimestamp = await getBlockTimestamp()
+    it('Should be able to deploy NFT', async () => {
+      let blockTimestamp = await getBlockTimestamp()
       
-    //   const { root, proofs, maxProofLength } = merkleTreeForMint([claimable1, claimable2], [1, 2])
+      const { root, proofs, maxProofLength } = merkleTreeForMint([claimable1, claimable2], [1, 2])
 
-    //   let packedParameter = ethers.utils.solidityPack([
-    //     0,
-    //     root,
+      const packedParameter = ethers.utils.solidityPack([
+        root,
+        ethers.utils.parseEther("10"),
+        ethers.utils.parseEther("5"),
+        ethers.utils.parseEther("0.01"),
+        blockTimestamp + 1000,
+        blockTimestamp + 2000,
+      ]);
 
-    //   ])
-    // })
+      const collectionId1 = ethers.utils.hexZeroPad('0x111101', 32);
+      const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);
+      const collectionId3 = ethers.utils.hexZeroPad('0x111103', 32);
+      const collectionId4 = ethers.utils.hexZeroPad('0x111104', 32);
+      const projectId = ethers.utils.hexZeroPad('0x1234', 32);
+
+      await projectRegistry.deployNft(
+        
+      )
+    })
   })
 });
