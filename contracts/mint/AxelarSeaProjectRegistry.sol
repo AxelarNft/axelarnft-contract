@@ -11,11 +11,14 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "./AxelarSeaMintingErrors.sol";
+
 contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixin, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   mapping(address => bool) public operators;
   mapping(address => bool) public templates;
+  mapping(address => bool) public minterTemplates;
   mapping(address => bool) public axelarSeaContract;
 
   mapping(bytes32 => address) public projectOwner;
@@ -52,6 +55,12 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
   function setOperator(address operator, bool enabled) public onlyOwner {
     operators[operator] = enabled;
     emit SetOperator(operator, enabled);
+  }
+
+  event SetMinterTemplate(address indexed template, bool enabled);
+  function setMinterTemplate(address template, bool enabled) public onlyOwner {
+    minterTemplates[template] = enabled;
+    emit SetMinterTemplate(template, enabled);
   }
 
   event SetTemplate(address indexed template, bool enabled);
@@ -109,13 +118,47 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     address owner,
     bytes32 collectionId,
     bytes32 projectId,
+    uint256 exclusiveLevel,
+    uint256 maxSupply,
+    string memory name,
+    string memory symbol
+  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
+    if (!templates[template]) {
+      revert InvalidTemplate(template);
+    }
+
+    nft = IAxelarSeaNftInitializable(Clones.clone(template));
+    nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
+    linkProject(address(nft), projectId);
+    emit DeployNft(template, owner, address(nft), collectionId, projectId);
+  }
+
+  function deployNftWithMinter(
+    address template,
+    address minterTemplate,
+    address owner,
+    bytes32 collectionId,
+    bytes32 projectId,
+    uint256 exclusiveLevel,
+    uint256 maxSupply,
     string memory name,
     string memory symbol,
     bytes memory data
-  ) public onlyOperator nonReentrant {
-    IAxelarSeaNftInitializable nft = IAxelarSeaNftInitializable(Clones.clone(template));
-    nft.initialize(owner, collectionId, projectId, name, symbol, data);
+  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
+    if (!templates[template]) {
+      revert InvalidTemplate(template);
+    }
+
+    if (!minterTemplates[minterTemplate]) {
+      revert InvalidTemplate(template);
+    }
+
+    nft = IAxelarSeaNftInitializable(Clones.clone(template));
+    nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
     linkProject(address(nft), projectId);
+
+    nft.deployMinter(minterTemplate, data);
+
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }
 

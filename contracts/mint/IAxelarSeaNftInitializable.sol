@@ -5,9 +5,24 @@ interface IAxelarSeaNftInitializable {
   function initialize(
     address owner,
     bytes32 collectionId,
-    bytes32 projectId,
+    uint256 exclusiveLevel,
+    uint256 maxSupply,
     string memory name, 
-    string memory symbol,
+    string memory symbol
+  ) external;
+
+  function deployMinter(
+    address template,
+    bytes memory data
+  ) external;
+
+  function mint(address to, uint256 maxAmount, uint256 amount) external;
+}
+
+interface IAxelarSeaMinterInitializable {
+  function initialize(
+    address targetNft,
+    address owner,
     bytes memory data
   ) external;
 }
