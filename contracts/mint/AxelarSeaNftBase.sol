@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
 import "../meta-transactions/MetaTransactionVerifier.sol";
@@ -15,6 +14,7 @@ import "./AxelarSeaMintingErrors.sol";
 
 abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarSeaNftInitializable, ReentrancyGuard {
   using Strings for uint256;
+  using SafeERC20 for IERC20;
 
   bool private initialized;
 
@@ -61,6 +61,8 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     nftName = _nftName;
     nftSymbol = _nftSymbol;
 
+    fundAddress = owner;
+
     _transferOwnership(owner);
   }
 
@@ -90,16 +92,16 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     emit SetMinter(minter, enabled);
   }
 
-  function deployMinter(address template, bytes memory data) public nonReentrant {
+  function deployMinter(address template, bytes memory data) public nonReentrant returns(IAxelarSeaMinterInitializable minter) {
     if (msg.sender != owner() && msg.sender != address(registry)) {
       revert Forbidden();
     }
 
-    if (registry.minterTemplates(template)) {
+    if (!registry.minterTemplates(template)) {
       revert InvalidTemplate(template);
     }
 
-    IAxelarSeaMinterInitializable minter = IAxelarSeaMinterInitializable(Clones.clone(template));
+    minter = IAxelarSeaMinterInitializable(Clones.clone(template));
     minter.initialize(address(this), owner(), data);
 
     minters[address(minter)] = true;
@@ -142,6 +144,14 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
 
   function mint(address to, uint256 maxAmount, uint256 amount) public onlyMinter(msg.sender) nonReentrant {
     _mintInternal(to, maxAmount, amount);
+  }
+
+  function recoverETH() external onlyOwner {
+    payable(msg.sender).call{value: address(this).balance}("");
+  }
+
+  function recoverERC20(IERC20 token) external onlyOwner {
+    token.safeTransfer(msg.sender, token.balanceOf(address(this)));
   }
 
   function exists(uint256 tokenId) public virtual view returns(bool);

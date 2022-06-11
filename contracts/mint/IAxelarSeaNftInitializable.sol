@@ -14,7 +14,7 @@ interface IAxelarSeaNftInitializable {
   function deployMinter(
     address template,
     bytes memory data
-  ) external;
+  ) external returns(IAxelarSeaMinterInitializable minter);
 
   function mint(address to, uint256 maxAmount, uint256 amount) external;
 }

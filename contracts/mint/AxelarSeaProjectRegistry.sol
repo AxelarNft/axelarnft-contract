@@ -99,10 +99,7 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
 
   // Only linkable if that NFT implement Ownable
   event LinkProject(address indexed contractAddress, bytes32 projectId);
-  function linkProject(address contractAddress, bytes32 projectId) public nonReentrant {
-    // Check support interface
-    require(IERC165(contractAddress).supportsInterface(0x80ac58cd) || IERC165(contractAddress).supportsInterface(0xd9b67a26), "Not NFT");
-
+  function _linkProject(address contractAddress, bytes32 projectId) internal {
     address owner = Ownable(contractAddress).owner();
 
     require(owner != address(0) && owner == projectOwner[projectId], "Not owner");
@@ -110,6 +107,13 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     nftProject[contractAddress] = projectId;
 
     emit LinkProject(contractAddress, projectId);
+  }
+
+  function linkProject(address contractAddress, bytes32 projectId) public nonReentrant {
+    // Check support interface
+    require(IERC165(contractAddress).supportsInterface(0x80ac58cd) || IERC165(contractAddress).supportsInterface(0xd9b67a26), "Not NFT");
+
+    _linkProject(contractAddress, projectId);
   }
 
   event DeployNft(address indexed template, address indexed owner, address indexed contractAddress, bytes32 collectionId, bytes32 projectId);
@@ -122,14 +126,14 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     uint256 maxSupply,
     string memory name,
     string memory symbol
-  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
+  ) public nonReentrant returns(IAxelarSeaNftInitializable nft) {
     if (!templates[template]) {
       revert InvalidTemplate(template);
     }
 
     nft = IAxelarSeaNftInitializable(Clones.clone(template));
     nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
-    linkProject(address(nft), projectId);
+    _linkProject(address(nft), projectId);
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }
 
@@ -144,20 +148,20 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     string memory name,
     string memory symbol,
     bytes memory data
-  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
+  ) public nonReentrant returns(IAxelarSeaNftInitializable nft, IAxelarSeaMinterInitializable minter) {
     if (!templates[template]) {
       revert InvalidTemplate(template);
     }
 
     if (!minterTemplates[minterTemplate]) {
-      revert InvalidTemplate(template);
+      revert InvalidTemplate(minterTemplate);
     }
 
     nft = IAxelarSeaNftInitializable(Clones.clone(template));
     nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
-    linkProject(address(nft), projectId);
+    _linkProject(address(nft), projectId);
 
-    nft.deployMinter(minterTemplate, data);
+    minter = nft.deployMinter(minterTemplate, data);
 
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }

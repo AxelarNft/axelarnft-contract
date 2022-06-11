@@ -24,7 +24,7 @@ export const fixtureERC20 = async (signer: JsonRpcSigner) => {
   ) => {
     const amount = toBN(tokenAmount);
     // Offerer mints ERC20
-    await testERC20.mint(signer.address, amount);
+    await testERC20.mint(signer.address, amount).then(tx => tx.wait());
 
     // Offerer approves marketplace contract to tokens
     await expect(testERC20.connect(signer).approve(spender, amount))

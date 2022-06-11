@@ -1,21 +1,25 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "../lib/MerkleProof.sol";
 import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
+import "hardhat/console.sol";
 
 contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
+  using SafeERC20 for IERC20;
+
   struct AxelarSeaNftMintData {
     bytes32 merkleRoot;
     uint256 mintPriceStart;
     uint256 mintPriceEnd;
     uint256 mintPriceStep;
-    IERC20 mintTokenAddress;
     uint256 mintStart;
     uint256 mintEnd;
+    IERC20 mintTokenAddress;
   }
 
   bool private initialized;
@@ -29,9 +33,9 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
     bytes32 indexed projectId,
     AxelarSeaNftMintData mintData
   );
-  function updateConfig(
+  function _updateConfig(
     bytes memory data
-  ) public onlyOwner {
+  ) internal {
     mintData = abi.decode(data, (AxelarSeaNftMintData));
 
     require(mintData.mintEnd >= mintData.mintStart, "Invalid timestamp");
@@ -42,6 +46,12 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
       nft.projectId(),
       mintData
     );
+  }
+
+  function updateConfig(
+    bytes memory data
+  ) public onlyOwner {
+    _updateConfig(data);
   }
 
   function initialize(
@@ -55,8 +65,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
     nft = AxelarSeaNftBase(targetNft);
     registry = nft.registry();
 
-    updateConfig(data);
-
+    _updateConfig(data);
     _transferOwnership(owner);
   }
 
@@ -87,7 +96,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   }
 
   function _pay(address from, uint256 amount) internal {
-    if (!(block.timestamp >= mintData.mintStart && block.timestamp <= mintData.mintEnd)) {
+    if (block.timestamp < mintData.mintStart || block.timestamp > mintData.mintEnd) {
       revert NotMintingTime();
     }
 
@@ -95,12 +104,18 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
       uint256 totalPrice = mintPrice() * amount;
       uint256 fee = totalPrice * mintFee() / 1e18;
 
-      mintData.mintTokenAddress.transferFrom(from, registry.feeAddress(), fee);
-      mintData.mintTokenAddress.transferFrom(from, nft.fundAddress(), totalPrice - fee);
+      console.log(totalPrice);
+
+      mintData.mintTokenAddress.safeTransferFrom(from, registry.feeAddress(), fee);
+      mintData.mintTokenAddress.safeTransferFrom(from, nft.fundAddress(), totalPrice - fee);
     }
   }
 
   function checkMerkle(address toCheck, uint256 maxAmount, bytes32[] calldata proof) public view returns(bool) {
+    console.log(Strings.toHexString(uint256(mintData.merkleRoot)));
+    console.log(Strings.toHexString(uint256(keccak256(abi.encodePacked(toCheck, maxAmount)))));
+    console.log(Strings.toHexString(uint256(proof[0])));
+    console.log(Strings.toHexString(uint256(proof[1])));
     return MerkleProof.verify(proof, mintData.merkleRoot, keccak256(abi.encodePacked(toCheck, maxAmount)));
   }
 
@@ -131,4 +146,12 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   //   _pay(msg.sender, amount);
   //   _mintInternal(to, maxAmount, amount);
   // }
+
+  function recoverETH() external onlyOwner {
+    payable(msg.sender).call{value: address(this).balance}("");
+  }
+
+  function recoverERC20(IERC20 token) external onlyOwner {
+    token.safeTransfer(msg.sender, token.balanceOf(address(this)));
+  }
 }

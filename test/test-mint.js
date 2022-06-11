@@ -3,10 +3,11 @@ const { expect } = require("chai");
 const {
   constants,
   utils: { parseEther, keccak256, toUtf8Bytes },
+  Contract,
 } = require("ethers");
 const { ethers, network } = require("hardhat");
 const { faucet, whileImpersonating } = require("./utils/impersonate");
-const { merkleTreeForMint } = require("./utils/criteria");
+const { merkleTreeForMint, merkleKeyForMint } = require("./utils/merkle");
 const {
   randomHex,
   random128,
@@ -34,6 +35,9 @@ const {
 } = require("./utils/fixtures");
 const { deployContract } = require("./utils/contracts");
 const { testPermission } = require("./utils/permission");
+const { getBlockTimestamp } = require("./utils/blockTimestamp");
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const ONLYOWNER_REVERT = "Ownable: caller is not the owner";
 
@@ -80,6 +84,90 @@ describe(`AxelarSea — initial test suite`, function () {
 
   let projectRegistry;
   let nft721template;
+
+  async function deployNft(
+    {
+      template,
+      minterTemplate,
+      owner,
+      collectionId,
+      projectId,
+      exclusiveLevel,
+      maxSupply,
+      name,
+      symbol,
+      data,
+    }
+  ) {
+    if (minterTemplate) {
+      let nftAddress = await projectRegistry.callStatic.deployNftWithMinter(
+        template,
+        minterTemplate,
+        owner,
+        collectionId,
+        projectId,
+        exclusiveLevel,
+        maxSupply,
+        name,
+        symbol,
+        data
+      );
+      await projectRegistry.deployNftWithMinter(
+        template,
+        minterTemplate,
+        owner,
+        collectionId,
+        projectId,
+        exclusiveLevel,
+        maxSupply,
+        name,
+        symbol,
+        data
+      ).then(tx => tx.wait());
+
+      const nftFactory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
+      const minterFactory = await ethers.getContractFactory("AxelarSeaNftMerkleMinter", owner);
+      return [await nftFactory.attach(nftAddress.nft), await minterFactory.attach(nftAddress.minter)];
+    } else {
+      let nftAddress = await projectRegistry.callStatic.deployNft(
+        template,
+        owner,
+        collectionId,
+        projectId,
+        exclusiveLevel,
+        maxSupply,
+        name,
+        symbol
+      );
+      await projectRegistry.deployNft(
+        template,
+        owner,
+        collectionId,
+        projectId,
+        exclusiveLevel,
+        maxSupply,
+        name,
+        symbol
+      ).then(tx => tx.wait());
+
+      const factory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
+      return await factory.attach(nftAddress);
+    }
+  }
+
+  async function deployMinter(nft, owner, minterTemplate, data) {
+    let minterAddress = await nft.connect(owner).callStatic.deployMinter(
+      minterTemplate,
+      data
+    );
+    await nft.connect(owner).deployMinter(
+      minterTemplate,
+      data
+    ).then(tx => tx.wait());
+
+    const minterFactory = await ethers.getContractFactory("AxelarSeaNftMerkleMinter", owner);
+    return await minterFactory.attach(minterAddress);
+  }
 
   // Deploy contracts
   before(async () => {
@@ -144,9 +232,12 @@ describe(`AxelarSea — initial test suite`, function () {
     let projectMember;
     let projectMember2;
 
+    // let collectionOwner;
+
     let minter;
     let claimable1;
     let claimable2;
+    let claimable3;
 
     before(async () => {
       feeAddress = new ethers.Wallet(randomHex(32), provider);
@@ -156,9 +247,12 @@ describe(`AxelarSea — initial test suite`, function () {
       projectMember = new ethers.Wallet(randomHex(32), provider);
       projectMember2 = new ethers.Wallet(randomHex(32), provider);
 
+      // collectionOwner = new ethers.Wallet(randomHex(32), provider);
+
       minter = new ethers.Wallet(randomHex(32), provider);
       claimable1 = new ethers.Wallet(randomHex(32), provider);
       claimable2 = new ethers.Wallet(randomHex(32), provider);
+      claimable3 = new ethers.Wallet(randomHex(32), provider);
 
       await Promise.all(
         [
@@ -168,9 +262,11 @@ describe(`AxelarSea — initial test suite`, function () {
           projectNewOwner,
           projectMember,
           projectMember2,
+          // collectionOwner,
           minter,
           claimable1,
           claimable2,
+          claimable3,
         ].map((wallet) => faucet(wallet.address, provider))
       );
     })
@@ -188,7 +284,7 @@ describe(`AxelarSea — initial test suite`, function () {
     it('Should be able to set minter template', async () => {
       await testPermission({
         contract: projectRegistry,
-        fn: 'setTemplate',
+        fn: 'setMinterTemplate',
         authorized: owner,
         unauthorized: someone,
         revertMessage: ONLYOWNER_REVERT,
@@ -216,7 +312,6 @@ describe(`AxelarSea — initial test suite`, function () {
       }, operator.address, true)
     })
 
-    // TODO: Should be Seaport Conduit contract
     it('Should be able to set axelarSea contract', async () => {
       await testPermission({
         contract: projectRegistry,
@@ -297,29 +392,129 @@ describe(`AxelarSea — initial test suite`, function () {
         .to.be.revertedWith("Forbidden")
     })
 
-    it('Should be able to deploy NFT', async () => {
-      let blockTimestamp = await getBlockTimestamp()
+    describe('Basic minting', async () => {
+      let nft1, minter1;
+      let nft2, minter2;
+      let nft3, minter3;
+      let merkleTree;
       
-      const { root, proofs, maxProofLength } = merkleTreeForMint([claimable1, claimable2], [1, 2])
-
-      const packedParameter = ethers.utils.solidityPack([
-        root,
-        ethers.utils.parseEther("10"),
-        ethers.utils.parseEther("5"),
-        ethers.utils.parseEther("0.01"),
-        blockTimestamp + 1000,
-        blockTimestamp + 2000,
-      ]);
-
-      const collectionId1 = ethers.utils.hexZeroPad('0x111101', 32);
-      const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);
-      const collectionId3 = ethers.utils.hexZeroPad('0x111103', 32);
-      const collectionId4 = ethers.utils.hexZeroPad('0x111104', 32);
-      const projectId = ethers.utils.hexZeroPad('0x1234', 32);
-
-      await projectRegistry.deployNft(
+      it('Should be able to deploy NFT', async () => {
+        let blockTimestamp = await getBlockTimestamp()
         
-      )
+        merkleTree = merkleTreeForMint([claimable1.address, claimable2.address, claimable3.address], [1, 3, 1])
+
+        console.log('ROOT', merkleTree.getHexRoot())
+        console.log(merkleTree.toString())
+  
+        const packedParameter = ethers.utils.AbiCoder.prototype.encode(
+          [
+            "bytes32",
+            "uint256",
+            "uint256",
+            "uint256",
+            "uint256",
+            "uint256",
+            "address",
+          ],
+          [
+            merkleTree.getHexRoot(),
+            ethers.utils.parseEther("10"),
+            ethers.utils.parseEther("5"),
+            ethers.utils.parseEther("0.01"),
+            blockTimestamp + 1000,
+            blockTimestamp + 2000,
+            testERC20.address,
+          ]
+        );
+
+        const packedParameter2 = ethers.utils.AbiCoder.prototype.encode(
+          [
+            "bytes32",
+            "uint256",
+            "uint256",
+            "uint256",
+            "uint256",
+            "uint256",
+            "address",
+          ],
+          [
+            merkleTree.getHexRoot(),
+            ethers.utils.parseEther("10"),
+            ethers.utils.parseEther("10"),
+            ethers.utils.parseEther("0"),
+            blockTimestamp + 1000,
+            blockTimestamp + 2000,
+            testERC20.address,
+          ]
+        );
+  
+        const collectionId1 = ethers.utils.hexZeroPad('0x111101', 32);
+        // const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);
+        // const collectionId3 = ethers.utils.hexZeroPad('0x111103', 32);
+        // const collectionId4 = ethers.utils.hexZeroPad('0x111104', 32);
+        const projectId = ethers.utils.hexZeroPad('0x1234', 32);
+
+        // console.log(packedParameter)
+  
+        let deployment1 = await deployNft({
+          template: nft721template.address,
+          minterTemplate: nftMerkleMinterTemplate.address,
+          owner: projectOwner.address,
+          collectionId: collectionId1,
+          projectId: projectId,
+          exclusiveLevel: 0,
+          maxSupply: 100,
+          name: "Test 1",
+          symbol: "TEST1",
+          data: packedParameter,
+        });
+
+        nft1 = deployment1[0];
+        minter1 = deployment1[1];
+
+        nft2 = await deployNft({
+          template: nft721template.address,
+          owner: projectOwner.address,
+          collectionId: collectionId1,
+          projectId: projectId,
+          exclusiveLevel: 2,
+          maxSupply: 100,
+          name: "Test 2",
+          symbol: "TEST2",
+        });
+
+        minter2 = await deployMinter(
+          nft2,
+          projectOwner,
+          nftMerkleMinterTemplate.address,
+          packedParameter2,
+        )
+  
+        console.log(nft1.address, minter1.address)
+        console.log(nft2.address, minter2.address)
+      })
+
+      it('Should be able to mint', async () => {
+        await mintAndApproveERC20(claimable1, minter1.address, ethers.utils.parseEther("10000"));
+        await mintAndApproveERC20(claimable2, minter2.address, ethers.utils.parseEther("10000"));
+        // await mintAndApproveERC20(claimable3, minter3.address, ethers.utils.parseEther("10000"));
+
+        console.log(merkleKeyForMint(claimable1.address, 1))
+
+        let proof1 = merkleTree.getHexProof(merkleKeyForMint(claimable1.address, 1))
+        let proof2 = merkleTree.getHexProof(merkleKeyForMint(claimable2.address, 3))
+
+        // expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1)).to.be.revertedWith("NotMintingTime")
+
+        await network.provider.send("evm_increaseTime", [1010]);
+        await network.provider.send("evm_mine");
+
+        console.log(proof1)
+
+        await wait(3000); // Fix unknown bug
+
+        await minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1).then(tx => tx.wait())
+      })
     })
   })
 });
