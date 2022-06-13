@@ -20,11 +20,17 @@ async function deploy(contractName, ...args) {
 }
 
 async function main() {
+  const accounts = await hre.ethers.getSigners();
+  const chainId = hre.network.config.chainId;
+
   const ERC721EnumerableTemplate = await deploy("AxelarSeaNft721Enumerable");
+  const AxelarSeaNftMerkleMinter = await deploy("AxelarSeaNftMerkleMinter");
 
   const axelarSeaProjectRegistry = await deploy("AxelarSeaProjectRegistry");
 
+  await axelarSeaProjectRegistry.setOperator(accounts[0].address, true).then(tx => tx.wait());
   await axelarSeaProjectRegistry.setTemplate(ERC721EnumerableTemplate.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftMerkleMinter.address, true).then(tx => tx.wait());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

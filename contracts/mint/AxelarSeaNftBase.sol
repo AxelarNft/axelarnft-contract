@@ -36,6 +36,9 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
   uint256 public mintFeeOverride = 0;
   bool public enableMintFeeOverride = false;
 
+  string public baseTokenUriPrefix = "";
+  string public baseTokenUriSuffix = "";
+
   modifier onlyMinter(address addr) {
     require(minters[addr], "Forbidden");
     _;
@@ -146,6 +149,14 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     _mintInternal(to, maxAmount, amount);
   }
 
+  function setBaseTokenUriPrefix(string memory newPrefix) public onlyOwner {
+    baseTokenUriPrefix = newPrefix;
+  }
+
+  function setBaseTokenUriSuffix(string memory newSuffix) public onlyOwner {
+    baseTokenUriSuffix = newSuffix;
+  }
+
   function recoverETH() external onlyOwner {
     payable(msg.sender).call{value: address(this).balance}("");
   }
@@ -170,7 +181,12 @@ abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarS
     */
   function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
     require(exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-    return string(abi.encodePacked(registry.baseTokenURI(), uint256(collectionId).toHexString(), "/", tokenId.toString()));
+
+    if (bytes(baseTokenUriPrefix).length == 0) {
+      return string(abi.encodePacked(registry.baseTokenURI(), uint256(collectionId).toHexString(), "/", tokenId.toString()));
+    } else {
+      return string(abi.encodePacked(baseTokenUriPrefix, tokenId.toString(), baseTokenUriSuffix));
+    }
   }
 
   /**

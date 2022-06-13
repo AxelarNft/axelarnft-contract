@@ -7,7 +7,7 @@ import "../lib/MerkleProof.sol";
 import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   using SafeERC20 for IERC20;
@@ -104,7 +104,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
       uint256 totalPrice = mintPrice() * amount;
       uint256 fee = totalPrice * mintFee() / 1e18;
 
-      console.log(totalPrice);
+      // console.log(totalPrice);
 
       mintData.mintTokenAddress.safeTransferFrom(from, registry.feeAddress(), fee);
       mintData.mintTokenAddress.safeTransferFrom(from, nft.fundAddress(), totalPrice - fee);
@@ -112,10 +112,6 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   }
 
   function checkMerkle(address toCheck, uint256 maxAmount, bytes32[] calldata proof) public view returns(bool) {
-    console.log(Strings.toHexString(uint256(mintData.merkleRoot)));
-    console.log(Strings.toHexString(uint256(keccak256(abi.encodePacked(toCheck, maxAmount)))));
-    console.log(Strings.toHexString(uint256(proof[0])));
-    console.log(Strings.toHexString(uint256(proof[1])));
     return MerkleProof.verify(proof, mintData.merkleRoot, keccak256(abi.encodePacked(toCheck, maxAmount)));
   }
 

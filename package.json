@@ -37,6 +37,7 @@
 		"@typechain/ethers-v5": "^10.0.0",
 		"axios": "^0.27.2",
 		"dotenv": "^16.0.1",
+		"eip-712": "^1.0.0",
 		"keccak256": "^1.0.6",
 		"lodash": "^4.17.21",
 		"merkletreejs": "^0.2.31",

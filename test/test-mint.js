@@ -392,7 +392,7 @@ describe(`AxelarSea — initial test suite`, function () {
         .to.be.revertedWith("Forbidden")
     })
 
-    describe('Basic minting', async () => {
+    describe('NFT minting', async () => {
       let nft1, minter1;
       let nft2, minter2;
       let nft3, minter3;
@@ -419,7 +419,7 @@ describe(`AxelarSea — initial test suite`, function () {
           [
             merkleTree.getHexRoot(),
             ethers.utils.parseEther("10"),
-            ethers.utils.parseEther("5"),
+            ethers.utils.parseEther("4"),
             ethers.utils.parseEther("0.01"),
             blockTimestamp + 1000,
             blockTimestamp + 2000,
@@ -439,8 +439,8 @@ describe(`AxelarSea — initial test suite`, function () {
           ],
           [
             merkleTree.getHexRoot(),
-            ethers.utils.parseEther("10"),
-            ethers.utils.parseEther("10"),
+            ethers.utils.parseEther("11"),
+            ethers.utils.parseEther("11"),
             ethers.utils.parseEther("0"),
             blockTimestamp + 1000,
             blockTimestamp + 2000,
@@ -496,24 +496,46 @@ describe(`AxelarSea — initial test suite`, function () {
 
       it('Should be able to mint', async () => {
         await mintAndApproveERC20(claimable1, minter1.address, ethers.utils.parseEther("10000"));
+        await mintAndApproveERC20(claimable1, minter2.address, ethers.utils.parseEther("10000"));
+        await mintAndApproveERC20(claimable2, minter1.address, ethers.utils.parseEther("10000"));
         await mintAndApproveERC20(claimable2, minter2.address, ethers.utils.parseEther("10000"));
-        // await mintAndApproveERC20(claimable3, minter3.address, ethers.utils.parseEther("10000"));
+        await mintAndApproveERC20(claimable3, minter1.address, ethers.utils.parseEther("10000"));
+        await mintAndApproveERC20(claimable3, minter2.address, ethers.utils.parseEther("10000"));
 
-        console.log(merkleKeyForMint(claimable1.address, 1))
+        // console.log(merkleKeyForMint(claimable1.address, 1))
 
         let proof1 = merkleTree.getHexProof(merkleKeyForMint(claimable1.address, 1))
         let proof2 = merkleTree.getHexProof(merkleKeyForMint(claimable2.address, 3))
+        let proof3 = merkleTree.getHexProof(merkleKeyForMint(claimable3.address, 1))
 
-        // expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1)).to.be.revertedWith("NotMintingTime")
+        await expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1)).to.be.revertedWith("NotMintingTime")
 
-        await network.provider.send("evm_increaseTime", [1010]);
+        await network.provider.send("evm_increaseTime", [1000]);
         await network.provider.send("evm_mine");
 
-        console.log(proof1)
-
-        await wait(3000); // Fix unknown bug
-
         await minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1).then(tx => tx.wait())
+        await minter2.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1).then(tx => tx.wait())
+
+        await network.provider.send("evm_increaseTime", [200]);
+        await network.provider.send("evm_mine");
+
+        await minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2).then(tx => tx.wait())
+        await minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2).then(tx => tx.wait())
+
+        await network.provider.send("evm_increaseTime", [600]);
+        await network.provider.send("evm_mine");
+
+        await minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 2, proof2).then(tx => tx.wait())
+        await minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 2, proof2).then(tx => tx.wait())
+
+        await expect(minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2)).to.be.reverted
+        await expect(minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2)).to.be.reverted
+
+        await network.provider.send("evm_increaseTime", [410]);
+        await network.provider.send("evm_mine");
+
+        await expect(minter1.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3)).to.be.reverted
+        await expect(minter2.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3)).to.be.reverted
       })
     })
   })
