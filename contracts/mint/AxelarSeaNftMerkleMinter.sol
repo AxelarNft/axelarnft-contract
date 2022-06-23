@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../lib/MerkleProof.sol";
-import "../meta-transactions/MetaTransactionVerifier.sol";
+// import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
 // import "hardhat/console.sol";
@@ -27,7 +27,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   AxelarSeaNftMintData public mintData;
   AxelarSeaNftBase public nft;
 
-  event UpdateConfig(
+  event UpdateConfigMerkleMinter(
     address indexed nftAddress,
     bytes32 indexed collectionId,
     bytes32 indexed projectId,
@@ -40,7 +40,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
 
     require(mintData.mintEnd >= mintData.mintStart, "Invalid timestamp");
 
-    emit UpdateConfig(
+    emit UpdateConfigMerkleMinter(
       address(nft),
       nft.collectionId(),
       nft.projectId(),

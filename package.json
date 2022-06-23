@@ -33,14 +33,17 @@
 	},
 	"dependencies": {
 		"@axelar-network/axelar-cgp-solidity": "^3.2.1",
-		"@rari-capital/solmate": "^7.0.0",
+		"@rari-capital/solmate": "^7.0.0-alpha.3",
 		"@typechain/ethers-v5": "^10.0.0",
 		"axios": "^0.27.2",
 		"dotenv": "^16.0.1",
 		"eip-712": "^1.0.0",
+		"erc721a": "^4.1.0",
+		"ethers-eip712": "^0.2.0",
 		"keccak256": "^1.0.6",
 		"lodash": "^4.17.21",
 		"merkletreejs": "^0.2.31",
+		"sgn-v2-contracts": "^0.2.0",
 		"typechain": "^8.0.0"
 	}
 }

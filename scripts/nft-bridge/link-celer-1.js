@@ -6,8 +6,7 @@
 const hre = require("hardhat");
 const { cloneDeep } = require('lodash');
 const data = cloneDeep(require("./data.json"));
-const fs = require('fs');
-const { ethers } = require("hardhat");
+const fs = require('fs')
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -38,26 +37,24 @@ async function main() {
 
   const contracts = {};
 
-  contracts.erc721template = await attach("AxelarSeaERC721", data.sampleNft[chainId]);
+  // contracts.erc721template = await attach("AxelarSeaERC721", data.erc721template[chainId]);
   // contracts.erc1155template = await attach("AxelarSeaERC1155", data.erc1155template[chainId]);
   contracts.bridgeController = await attach("AxelarSeaNftBridgeController", data.bridgeController[chainId]);
-  // contracts.bridgeAxelar = await attach("AxelarSeaNftAxelarBridge", data.bridgeAxelar[chainId]);
+  contracts.bridgeCeler = await attach("AxelarSeaNftCelerBridge", data.bridgeCeler[chainId]);
+  
+  for (let destChainId in data.bridgeCeler) {
+    await contracts.bridgeCeler.addSibling(destChainId, data.bridgeCeler[destChainId]).then(tx => tx.wait());
 
-  // console.log(await contracts.bridgeAxelar.siblings(43113));
+    if (chainId == 5) {
+      await contracts.bridgeController.registerBridge(chainId, contracts.bridgeCeler.address).then(tx => tx.wait());
+    }
+  }
 
-  // let iface = new ethers.utils.Interface(ABI);
-  // iface.encodeFunctionData(functionName, [param1, param2, ...]);
-  // ethers.utils.defaultAbiCoder.encode
+  if (chainId != 5) {
+    await contracts.bridgeController.registerBridge(5, contracts.bridgeCeler.address).then(tx => tx.wait());
+  }
 
-  const gasLimit = 300000;
-
-  let sampleNftId = await contracts.bridgeController.address2nftId(data.sampleNft[chainId]);
-  data.sampleNftId[chainId] = sampleNftId.toString();
-
-  // for (let destChainId in data.bridgeAxelar) {
-  //   await contracts.bridgeController.registerBridge(destChainId, data.bridgeAxelar[chainId]).then(tx => tx.wait());
-  //   await contracts.bridgeAxelar.addSibling(destChainId, data.axelarChainName[destChainId], data.bridgeAxelar[destChainId]).then(tx => tx.wait());
-  // }
+  // await contracts.bridgeController.enableBridge(contracts.bridgeCeler.address, true);
 
   fs.writeFileSync(__dirname + '/data.json', JSON.stringify(data, undefined, 2));
 

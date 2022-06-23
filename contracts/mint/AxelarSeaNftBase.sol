@@ -6,13 +6,13 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
-import "../meta-transactions/MetaTransactionVerifier.sol";
+// import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaProjectRegistry.sol";
 
 import "./AxelarSeaMintingErrors.sol";
 
-abstract contract AxelarSeaNftBase is Ownable, MetaTransactionVerifier, IAxelarSeaNftInitializable, ReentrancyGuard {
+abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, ReentrancyGuard {
   using Strings for uint256;
   using SafeERC20 for IERC20;
 

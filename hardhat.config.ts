@@ -78,9 +78,10 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      forking: {
-        url: "https://speedy-nodes-nyc.moralis.io/301eb738d0e9755bd1c8b3e8/bsc/mainnet/archive",
-      }
+      chainId: 31337,
+      // forking: {
+      //   url: "https://speedy-nodes-nyc.moralis.io/301eb738d0e9755bd1c8b3e8/bsc/mainnet/archive",
+      // }
     },
     localhost:{
       
@@ -89,6 +90,11 @@ module.exports = {
 		ropsten: {
       url: "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 3,
+      accounts: [privateKeyTest]
+    },
+		goerli: {
+      url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      chainId: 5,
       accounts: [privateKeyTest]
     },
     bsctestnet: {
@@ -115,6 +121,11 @@ module.exports = {
     moonbeamtestnet: {
       url: "https://rpc.testnet.moonbeam.network/",
       chainId: 1287,
+      accounts: [privateKeyTest]
+    },
+    arbitrumtestnet: {
+      url: "https://rinkeby.arbitrum.io/rpc",
+      chainId: 421611,
       accounts: [privateKeyTest]
     },
 

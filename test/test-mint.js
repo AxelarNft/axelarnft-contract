@@ -5,7 +5,7 @@ const {
   utils: { parseEther, keccak256, toUtf8Bytes },
   Contract,
 } = require("ethers");
-const { ethers, network } = require("hardhat");
+const { ethers, network, getChainId } = require("hardhat");
 const { faucet, whileImpersonating } = require("./utils/impersonate");
 const { merkleTreeForMint, merkleKeyForMint } = require("./utils/merkle");
 const {
@@ -36,9 +36,13 @@ const {
 const { deployContract } = require("./utils/contracts");
 const { testPermission } = require("./utils/permission");
 const { getBlockTimestamp } = require("./utils/blockTimestamp");
+const {
+  generateNewProjectSignature
+} = require("./utils/signature");
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+const CHAIN_ID = 31337;
 const ONLYOWNER_REVERT = "Ownable: caller is not the owner";
 
 describe(`AxelarSea — initial test suite`, function () {
@@ -183,7 +187,7 @@ describe(`AxelarSea — initial test suite`, function () {
     );
 
     projectRegistry = await deployContract("AxelarSeaProjectRegistry", owner);
-    nft721template = await deployContract("AxelarSeaNft721Enumerable", owner);
+    nft721template = await deployContract("AxelarSeaNft721A", owner);
     nftMerkleMinterTemplate = await deployContract("AxelarSeaNftMerkleMinter", owner);
 
     ({
@@ -340,6 +344,16 @@ describe(`AxelarSea — initial test suite`, function () {
       }, projectOwner.address, ethers.utils.hexZeroPad('0x2345', 32))
     })
 
+    it('Should be able to add owner as operator', async () => {
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setOperator',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, owner.address, true)
+    })
+
     it('Should be able to setProjectMember / Owner', async () => {
       // Project not exists
       expect(projectRegistry.connect(projectOwner)
@@ -390,6 +404,19 @@ describe(`AxelarSea — initial test suite`, function () {
       expect(projectRegistry.connect(projectOwner)
         .setProjectMember(ethers.utils.hexZeroPad('0x2345', 32), someone.address, 1))
         .to.be.revertedWith("Forbidden")
+    })
+
+    it('Should use meta transaction to add new project', async () => {
+      const signature = await generateNewProjectSignature(operator.privateKey, projectRegistry.address, CHAIN_ID, projectOwner.address, ethers.utils.hexZeroPad('0x4444', 32))
+      
+      await projectRegistry.executeMetaTransaction(
+        operator.address,
+        signature.functionSignature,
+        signature.nonce,
+        signature.r,
+        signature.s,
+        signature.v
+      );
     })
 
     describe('NFT minting', async () => {

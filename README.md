@@ -16,6 +16,9 @@
 * MarketplaceMetaWallet deployed to: 0xC03a7ED392E02a9F404013593A3dae8234876874
 * Marketplace deployed to: 0xA32a90B0ec1232c69388AA1Bd5FEE6E8570a3726
 * Sample NFT deployed to: 0x7EE1704B30C7efE70e2cA7d143A4585F47E05eDf
+* AxelarSeaNft721Enumerable deployed to: 0xDa39d42c2186033F12b1caB25Ac048A02d4C1563
+* AxelarSeaNftMerkleMinter deployed to: 0x273B4865f041C5faAD20Fa18FdbDbaD8a43AFb67
+* AxelarSeaProjectRegistry deployed to: 0xbebb21126cb9Ee42ed7cf2ACbe574675DB6bc055
 
 ### Fantom testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
@@ -26,6 +29,13 @@
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
 * Marketplace deployed to: 0x5fA3b915A19D4a56417C06ba6617a8E90Ea149fD
 * Sample NFT deployed to: 0xc873FA6c0068895f80C4A25021B94FCFA33E3268
+
+### Goerli
+* Sample NFT deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
+* AxelarSeaERC721 deployed to: 0x5fA3b915A19D4a56417C06ba6617a8E90Ea149fD
+* AxelarSeaERC1155 deployed to: 0x913fF316D6921438930e131b716344F42Cb79135
+* AxelarSeaNftBridgeController deployed to: 0xe54bd661dda41649A1c84b9D22Eb95BD1fc9BB58
+* AxelarSeaNftCelerBridge deployed to: 0xc873FA6c0068895f80C4A25021B94FCFA33E3268
 
 ## Hardhat 101
 

@@ -77,6 +77,7 @@ contract MetaTransactionVerifier is EIP712Base {
         uint8 sigV
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
+
         return
             signer ==
             ecrecover(

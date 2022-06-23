@@ -40,12 +40,12 @@ async function main() {
   contracts.erc721template = await deploy("AxelarSeaERC721");
   contracts.erc1155template = await deploy("AxelarSeaERC1155");
   contracts.bridgeController = await deploy("AxelarSeaNftBridgeController", contracts.erc721template.address, contracts.erc1155template.address);
-  contracts.bridgeAxelar = await deploy("AxelarSeaNftAxelarBridge", contracts.bridgeController.address, data.axelarGateway[chainId], data.axelarGasReceiver[chainId]);
-
+  // contracts.bridgeAxelar = await deploy("AxelarSeaNftAxelarBridge", contracts.bridgeController.address, data.axelarGateway[chainId], data.axelarGasReceiver[chainId]);
+  
   data.erc721template[chainId] = contracts.erc721template.address;
   data.erc1155template[chainId] = contracts.erc1155template.address;
   data.bridgeController[chainId] = contracts.bridgeController.address;
-  data.bridgeAxelar[chainId] = contracts.bridgeAxelar.address;
+  // data.bridgeAxelar[chainId] = contracts.bridgeAxelar.address;
 
   fs.writeFileSync(__dirname + '/data.json', JSON.stringify(data, undefined, 2));
 

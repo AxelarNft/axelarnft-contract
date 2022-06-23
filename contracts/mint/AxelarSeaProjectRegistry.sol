@@ -36,6 +36,7 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
 
   constructor() {
     feeAddress = msg.sender;
+    _initializeEIP712("AxelarSeaProjectRegistry");
   }
 
   modifier onlyOperator {
@@ -126,7 +127,7 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     uint256 maxSupply,
     string memory name,
     string memory symbol
-  ) public nonReentrant returns(IAxelarSeaNftInitializable nft) {
+  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
     if (!templates[template]) {
       revert InvalidTemplate(template);
     }
@@ -148,7 +149,7 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
     string memory name,
     string memory symbol,
     bytes memory data
-  ) public nonReentrant returns(IAxelarSeaNftInitializable nft, IAxelarSeaMinterInitializable minter) {
+  ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft, IAxelarSeaMinterInitializable minter) {
     if (!templates[template]) {
       revert InvalidTemplate(template);
     }

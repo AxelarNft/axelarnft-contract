@@ -6,19 +6,18 @@
 const hre = require("hardhat");
 const { cloneDeep } = require('lodash');
 const data = cloneDeep(require("./data.json"));
-const fs = require('fs');
-const { ethers } = require("hardhat");
+const fs = require('fs')
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-async function attach(contractName, address) {
+async function deploy(contractName, ...args) {
   // Deploy contract
   const Contract = await hre.ethers.getContractFactory(contractName);
-  const contract = await Contract.attach(address);
+  const contract = await Contract.deploy(...args);
   await contract.deployed();
-  console.log(contractName + " attached to:", contract.address);
+  console.log(contractName + " deployed to:", contract.address);
 
-  // await wait(6000);
+  await wait(6000);
 
   return contract;
 }
@@ -38,26 +37,9 @@ async function main() {
 
   const contracts = {};
 
-  contracts.erc721template = await attach("AxelarSeaERC721", data.sampleNft[chainId]);
-  // contracts.erc1155template = await attach("AxelarSeaERC1155", data.erc1155template[chainId]);
-  contracts.bridgeController = await attach("AxelarSeaNftBridgeController", data.bridgeController[chainId]);
-  // contracts.bridgeAxelar = await attach("AxelarSeaNftAxelarBridge", data.bridgeAxelar[chainId]);
+  contracts.bridgeCeler = await deploy("AxelarSeaNftCelerBridge", data.bridgeController[chainId], data.celerMessageBus[chainId]);
 
-  // console.log(await contracts.bridgeAxelar.siblings(43113));
-
-  // let iface = new ethers.utils.Interface(ABI);
-  // iface.encodeFunctionData(functionName, [param1, param2, ...]);
-  // ethers.utils.defaultAbiCoder.encode
-
-  const gasLimit = 300000;
-
-  let sampleNftId = await contracts.bridgeController.address2nftId(data.sampleNft[chainId]);
-  data.sampleNftId[chainId] = sampleNftId.toString();
-
-  // for (let destChainId in data.bridgeAxelar) {
-  //   await contracts.bridgeController.registerBridge(destChainId, data.bridgeAxelar[chainId]).then(tx => tx.wait());
-  //   await contracts.bridgeAxelar.addSibling(destChainId, data.axelarChainName[destChainId], data.bridgeAxelar[destChainId]).then(tx => tx.wait());
-  // }
+  data.bridgeCeler[chainId] = contracts.bridgeCeler.address;
 
   fs.writeFileSync(__dirname + '/data.json', JSON.stringify(data, undefined, 2));
 
