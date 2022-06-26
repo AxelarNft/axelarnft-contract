@@ -37,8 +37,13 @@ const { deployContract } = require("./utils/contracts");
 const { testPermission } = require("./utils/permission");
 const { getBlockTimestamp } = require("./utils/blockTimestamp");
 const {
-  generateNewProjectSignature
+  generateNewProjectSignature,
+  generateDeployNftSignature,
+  generateDeployNftWithMinterSignature,
 } = require("./utils/signature");
+const {
+  merkleMinterData,
+} = require("./utils/minterPayload");
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -85,6 +90,7 @@ describe(`AxelarSea — initial test suite`, function () {
 
   let chainId;
   let someone;
+  let operator;
 
   let projectRegistry;
   let nft721template;
@@ -104,6 +110,24 @@ describe(`AxelarSea — initial test suite`, function () {
     }
   ) {
     if (minterTemplate) {
+      let signature = await generateDeployNftWithMinterSignature(
+        operator.privateKey, 
+        projectRegistry.address, 
+        CHAIN_ID, 
+        {
+          template,
+          minterTemplate,
+          owner,
+          collectionId,
+          projectId,
+          exclusiveLevel,
+          maxSupply,
+          name,
+          symbol,
+          data,
+        }
+      )
+
       let nftAddress = await projectRegistry.callStatic.deployNftWithMinter(
         template,
         minterTemplate,
@@ -116,23 +140,37 @@ describe(`AxelarSea — initial test suite`, function () {
         symbol,
         data
       );
-      await projectRegistry.deployNftWithMinter(
-        template,
-        minterTemplate,
-        owner,
-        collectionId,
-        projectId,
-        exclusiveLevel,
-        maxSupply,
-        name,
-        symbol,
-        data
+
+      await projectRegistry.connect(someone).executeMetaTransaction(
+        operator.address,
+        signature.functionSignature,
+        signature.nonce,
+        signature.r,
+        signature.s,
+        signature.v
       ).then(tx => tx.wait());
 
       const nftFactory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
       const minterFactory = await ethers.getContractFactory("AxelarSeaNftMerkleMinter", owner);
+
       return [await nftFactory.attach(nftAddress.nft), await minterFactory.attach(nftAddress.minter)];
     } else {
+      let signature = await generateDeployNftSignature(
+        operator.privateKey, 
+        projectRegistry.address, 
+        CHAIN_ID, 
+        {
+          template,
+          owner,
+          collectionId,
+          projectId,
+          exclusiveLevel,
+          maxSupply,
+          name,
+          symbol,
+        }
+      )
+
       let nftAddress = await projectRegistry.callStatic.deployNft(
         template,
         owner,
@@ -143,15 +181,13 @@ describe(`AxelarSea — initial test suite`, function () {
         name,
         symbol
       );
-      await projectRegistry.deployNft(
-        template,
-        owner,
-        collectionId,
-        projectId,
-        exclusiveLevel,
-        maxSupply,
-        name,
-        symbol
+      await projectRegistry.connect(someone).executeMetaTransaction(
+        operator.address,
+        signature.functionSignature,
+        signature.nonce,
+        signature.r,
+        signature.s,
+        signature.v
       ).then(tx => tx.wait());
 
       const factory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
@@ -181,9 +217,10 @@ describe(`AxelarSea — initial test suite`, function () {
 
     owner = new ethers.Wallet(randomHex(32), provider);
     someone = new ethers.Wallet(randomHex(32), provider);
+    operator = new ethers.Wallet(randomHex(32), provider);
 
     await Promise.all(
-      [owner].map((wallet) => faucet(wallet.address, provider))
+      [owner, someone, operator].map((wallet) => faucet(wallet.address, provider))
     );
 
     projectRegistry = await deployContract("AxelarSeaProjectRegistry", owner);
@@ -230,7 +267,6 @@ describe(`AxelarSea — initial test suite`, function () {
   // NFT Drop / Minting test cases
   describe('NFT Drop / Minting', function () {
     let feeAddress;
-    let operator;
     let projectOwner;
     let projectNewOwner;
     let projectMember;
@@ -245,7 +281,7 @@ describe(`AxelarSea — initial test suite`, function () {
 
     before(async () => {
       feeAddress = new ethers.Wallet(randomHex(32), provider);
-      operator = new ethers.Wallet(randomHex(32), provider);
+      // operator = new ethers.Wallet(randomHex(32), provider);
       projectOwner = new ethers.Wallet(randomHex(32), provider);
       projectNewOwner = new ethers.Wallet(randomHex(32), provider);
       projectMember = new ethers.Wallet(randomHex(32), provider);
@@ -261,7 +297,7 @@ describe(`AxelarSea — initial test suite`, function () {
       await Promise.all(
         [
           feeAddress,
-          operator,
+          // operator,
           projectOwner,
           projectNewOwner,
           projectMember,
@@ -432,48 +468,26 @@ describe(`AxelarSea — initial test suite`, function () {
 
         console.log('ROOT', merkleTree.getHexRoot())
         console.log(merkleTree.toString())
-  
-        const packedParameter = ethers.utils.AbiCoder.prototype.encode(
-          [
-            "bytes32",
-            "uint256",
-            "uint256",
-            "uint256",
-            "uint256",
-            "uint256",
-            "address",
-          ],
-          [
-            merkleTree.getHexRoot(),
-            ethers.utils.parseEther("10"),
-            ethers.utils.parseEther("4"),
-            ethers.utils.parseEther("0.01"),
-            blockTimestamp + 1000,
-            blockTimestamp + 2000,
-            testERC20.address,
-          ]
-        );
 
-        const packedParameter2 = ethers.utils.AbiCoder.prototype.encode(
-          [
-            "bytes32",
-            "uint256",
-            "uint256",
-            "uint256",
-            "uint256",
-            "uint256",
-            "address",
-          ],
-          [
-            merkleTree.getHexRoot(),
-            ethers.utils.parseEther("11"),
-            ethers.utils.parseEther("11"),
-            ethers.utils.parseEther("0"),
-            blockTimestamp + 1000,
-            blockTimestamp + 2000,
-            testERC20.address,
-          ]
-        );
+        const packedParameter = merkleMinterData({
+          merkleRoot: merkleTree.getHexRoot(),
+          mintPriceStart: ethers.utils.parseEther("10"),
+          mintPriceEnd: ethers.utils.parseEther("4"),
+          mintPriceStep: ethers.utils.parseEther("0.01"),
+          mintStart: blockTimestamp + 1000,
+          mintEnd: blockTimestamp + 2000,
+          mintTokenAddress: testERC20.address,
+        });
+
+        const packedParameter2 = merkleMinterData({
+          merkleRoot: merkleTree.getHexRoot(),
+          mintPriceStart: ethers.utils.parseEther("11"),
+          mintPriceEnd: ethers.utils.parseEther("11"),
+          mintPriceStep: ethers.utils.parseEther("0"),
+          mintStart: blockTimestamp + 1000,
+          mintEnd: blockTimestamp + 2000,
+          mintTokenAddress: testERC20.address,
+        });
   
         const collectionId1 = ethers.utils.hexZeroPad('0x111101', 32);
         // const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);

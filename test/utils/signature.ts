@@ -4,9 +4,25 @@ import { Signature, Wallet, Signer, utils } from 'ethers';
 
 import { abi as AxelarSeaProjectRegistryABI } from '../../artifacts/contracts/mint/AxelarSeaProjectRegistry.sol/AxelarSeaProjectRegistry.json';
 
-interface SignatureWithFunctionSignature extends Signature {
+export interface SignatureWithFunctionSignature extends Signature {
   functionSignature: string;
   nonce: string;
+}
+
+export interface DeployNftParameters {
+  template: string;
+  owner: string;
+  collectionId: string;
+  projectId: string;
+  exclusiveLevel: number;
+  maxSupply: number;
+  name: string;
+  symbol: string;
+}
+
+export interface DeployNftWithMinterParameters extends DeployNftParameters {
+  minterTemplate: string;
+  data: string;
 }
 
 export async function generateSignature(privateKey: string, contractAddress: string, name: string, functionSignature: string, chainId: string | number): Promise<SignatureWithFunctionSignature> {
@@ -69,6 +85,38 @@ export async function generateSignature(privateKey: string, contractAddress: str
 export async function generateNewProjectSignature(privateKey: string, contractAddress: string, chainId: string | number, owner: string, projectId: string): Promise<SignatureWithFunctionSignature> {
   let iface = new utils.Interface(AxelarSeaProjectRegistryABI);
   const functionSignature = iface.encodeFunctionData("newProject", [ owner, projectId ])
+  return await generateSignature(privateKey, contractAddress, "AxelarSeaProjectRegistry", functionSignature, chainId);
+}
+
+export async function generateDeployNftSignature(privateKey: string, contractAddress: string, chainId: string | number, params: DeployNftParameters): Promise<SignatureWithFunctionSignature> {
+  let iface = new utils.Interface(AxelarSeaProjectRegistryABI);
+  const functionSignature = iface.encodeFunctionData("deployNft", [
+    params.template,
+    params.owner,
+    params.collectionId,
+    params.projectId,
+    params.exclusiveLevel,
+    params.maxSupply,
+    params.name,
+    params.symbol,
+  ])
+  return await generateSignature(privateKey, contractAddress, "AxelarSeaProjectRegistry", functionSignature, chainId);
+}
+
+export async function generateDeployNftWithMinterSignature(privateKey: string, contractAddress: string, chainId: string | number, params: DeployNftWithMinterParameters): Promise<SignatureWithFunctionSignature> {
+  let iface = new utils.Interface(AxelarSeaProjectRegistryABI);
+  const functionSignature = iface.encodeFunctionData("deployNftWithMinter", [
+    params.template,
+    params.minterTemplate,
+    params.owner,
+    params.collectionId,
+    params.projectId,
+    params.exclusiveLevel,
+    params.maxSupply,
+    params.name,
+    params.symbol,
+    params.data,
+  ])
   return await generateSignature(privateKey, contractAddress, "AxelarSeaProjectRegistry", functionSignature, chainId);
 }
 
