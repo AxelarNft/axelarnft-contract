@@ -138,7 +138,7 @@ describe(`AxelarSea — initial test suite`, function () {
         maxSupply,
         name,
         symbol,
-        data
+        data,
       );
 
       await projectRegistry.connect(someone).executeMetaTransaction(

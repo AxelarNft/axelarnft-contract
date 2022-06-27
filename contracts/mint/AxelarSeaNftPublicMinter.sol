@@ -3,16 +3,13 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../lib/MerkleProof.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
-import "hardhat/console.sol";
 
-contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
+contract AxelarSeaNftPublicMinter is Ownable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   struct AxelarSeaNftMintData {
-    bytes32 merkleRoot;
     uint256 mintPriceStart;
     uint256 mintPriceEnd;
     uint256 mintPriceStep;
@@ -103,19 +100,12 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
       uint256 totalPrice = mintPrice() * amount;
       uint256 fee = totalPrice * mintFee() / 1e18;
 
-      console.log(totalPrice);
-
       mintData.mintTokenAddress.safeTransferFrom(from, registry.feeAddress(), fee);
       mintData.mintTokenAddress.safeTransferFrom(from, nft.fundAddress(), totalPrice - fee);
     }
   }
 
-  function checkMerkle(address toCheck, uint256 maxAmount, bytes32[] calldata proof) public view returns(bool) {
-    return MerkleProof.verify(proof, mintData.merkleRoot, keccak256(abi.encodePacked(toCheck, maxAmount)));
-  }
-
-  function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public nonReentrant {
-    require(checkMerkle(to, maxAmount, proof), "Not whitelisted");
+  function mintPublic(address to, uint256 maxAmount, uint256 amount) public nonReentrant {
     _pay(msg.sender, amount);
     nft.mint(to, maxAmount, amount);
   }

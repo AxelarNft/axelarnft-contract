@@ -3,16 +3,15 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../lib/MerkleProof.sol";
+import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
-import "hardhat/console.sol";
 
-contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
+contract AxelarSeaNftSignatureMinter is Ownable, MetaTransactionVerifier, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   struct AxelarSeaNftMintData {
-    bytes32 merkleRoot;
+    address operator;
     uint256 mintPriceStart;
     uint256 mintPriceEnd;
     uint256 mintPriceStep;
@@ -103,19 +102,33 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
       uint256 totalPrice = mintPrice() * amount;
       uint256 fee = totalPrice * mintFee() / 1e18;
 
-      console.log(totalPrice);
-
       mintData.mintTokenAddress.safeTransferFrom(from, registry.feeAddress(), fee);
       mintData.mintTokenAddress.safeTransferFrom(from, nft.fundAddress(), totalPrice - fee);
     }
   }
 
-  function checkMerkle(address toCheck, uint256 maxAmount, bytes32[] calldata proof) public view returns(bool) {
-    return MerkleProof.verify(proof, mintData.merkleRoot, keccak256(abi.encodePacked(toCheck, maxAmount)));
-  }
+  function mintSignature(
+    address operatorAddress,
+    uint256 nonce,
+    bytes32 sigR,
+    bytes32 sigS,
+    uint8 sigV,
+    bytes memory payload
+  ) public nonReentrant {
+    if (operatorAddress != mintData.operator) {
+      revert Forbidden();
+    }
 
-  function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public nonReentrant {
-    require(checkMerkle(to, maxAmount, proof), "Not whitelisted");
+    verifyMetaTransaction(
+      operatorAddress,
+      payload,
+      nonce,
+      sigR,
+      sigS,
+      sigV
+    );
+
+    (address to, uint256 maxAmount, uint256 amount) = abi.decode(payload, (address, uint256, uint256));
     _pay(msg.sender, amount);
     nft.mint(to, maxAmount, amount);
   }

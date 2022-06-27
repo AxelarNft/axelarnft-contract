@@ -119,9 +119,3 @@ export async function generateDeployNftWithMinterSignature(privateKey: string, c
   ])
   return await generateSignature(privateKey, contractAddress, "AxelarSeaProjectRegistry", functionSignature, chainId);
 }
-
-// export async function generateNewProjectSignature(wallet: Signer, contractAddress: string, chainId: string | number, owner: string, projectId: string): Promise<SignatureWithFunctionSignature> {
-//   let iface = new utils.Interface(AxelarSeaProjectRegistryABI);
-//   const functionSignature = iface.encodeFunctionData("newProject", [ owner, projectId ])
-//   return await generateSignature(wallet, contractAddress, "AxelarSeaProjectRegistry", functionSignature, chainId);
-// }

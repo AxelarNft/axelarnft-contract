@@ -1,18 +1,23 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.7;
 
-import "erc721a/contracts/extensions/ERC721AQueryable.sol";
+import "../lib/ERC721AEnumerable.sol";
 import "./AxelarSeaNftBase.sol";
 
-contract AxelarSeaNft721A is ERC721AQueryable, AxelarSeaNftBase {
+contract AxelarSeaNft721A is ERC721AEnumerable, AxelarSeaNftBase {
   constructor() ERC721A("_", "_") {}
 
   function _mintInternal(address to, uint256 maxAmount, uint256 amount) internal override {
     walletMinted[to] += amount;
-    require(walletMinted[to] <= maxAmount, "Mint Limited");
+
+    if(walletMinted[to] > maxAmount) {
+      revert MintPerWalletLimited();
+    }
 
     uint256 supply = totalSupply();
-    require(supply + amount <= maxSupply, "Supply maxed");
+    if(supply + amount > maxSupply) {
+      revert SupplyLimited();
+    }
 
     _safeMint(to, amount);
   }
