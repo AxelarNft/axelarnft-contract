@@ -549,7 +549,7 @@ describe(`AxelarSea — initial test suite`, function () {
         let proof2 = merkleTree.getHexProof(merkleKeyForMint(claimable2.address, 3))
         let proof3 = merkleTree.getHexProof(merkleKeyForMint(claimable3.address, 1))
 
-        await expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1)).to.be.revertedWith("NotMintingTime")
+        await expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1)).to.be.reverted;
 
         await network.provider.send("evm_increaseTime", [1000]);
         await network.provider.send("evm_mine");

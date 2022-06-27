@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../lib/MerkleProof.sol";
+// import "../lib/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
 import "hardhat/console.sol";
@@ -115,7 +116,7 @@ contract AxelarSeaNftMerkleMinter is Ownable, ReentrancyGuard {
   }
 
   function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public nonReentrant {
-    require(checkMerkle(to, maxAmount, proof), "Not whitelisted");
+    if(!checkMerkle(to, maxAmount, proof)) revert NotWhitelisted();
     _pay(msg.sender, amount);
     nft.mint(to, maxAmount, amount);
   }

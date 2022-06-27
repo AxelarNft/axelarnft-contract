@@ -6,3 +6,4 @@ error Forbidden();
 error NotMintingTime();
 error MintPerWalletLimited();
 error SupplyLimited();
+error NotWhitelisted();
