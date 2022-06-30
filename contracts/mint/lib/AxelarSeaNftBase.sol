@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 
 // import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
-import "./AxelarSeaProjectRegistry.sol";
+import "../AxelarSeaProjectRegistry.sol";
 
 import "./AxelarSeaMintingErrors.sol";
 

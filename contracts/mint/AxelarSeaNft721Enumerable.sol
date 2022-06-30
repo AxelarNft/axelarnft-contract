@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "./AxelarSeaNftBase.sol";
+import "./lib/AxelarSeaNftBase.sol";
 
 contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
   constructor() ERC721("_", "_") {}

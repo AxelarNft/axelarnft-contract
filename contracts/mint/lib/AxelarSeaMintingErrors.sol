@@ -7,3 +7,4 @@ error NotMintingTime();
 error MintPerWalletLimited();
 error SupplyLimited();
 error NotWhitelisted();
+error TransferFailed();
