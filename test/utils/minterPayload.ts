@@ -16,22 +16,18 @@ export interface MerkleMinterData extends MinterPriceDetail {
 export function merkleMinterData(data: MerkleMinterData) {
   return ethers.utils.AbiCoder.prototype.encode(
     [
-      "bytes32",
-      "uint256",
-      "uint256",
-      "uint256",
-      "uint256",
-      "uint256",
-      "address",
+      "bytes32", "tuple(uint256,uint256,uint256,uint256,uint256,address)",
     ],
     [
       data.merkleRoot,
-      data.mintPriceStart,
-      data.mintPriceEnd,
-      data.mintPriceStep,
-      data.mintStart,
-      data.mintEnd,
-      data.mintTokenAddress,
+      [
+        data.mintPriceStart,
+        data.mintPriceEnd,
+        data.mintPriceStep,
+        data.mintStart,
+        data.mintEnd,
+        data.mintTokenAddress,
+      ]
     ]
   );
 }
