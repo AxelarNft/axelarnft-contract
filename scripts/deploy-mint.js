@@ -25,14 +25,26 @@ async function main() {
 
   const ERC721EnumerableTemplate = await deploy("AxelarSeaNft721Enumerable");
   const ERC721ATemplate = await deploy("AxelarSeaNft721A");
+
   const AxelarSeaNftMerkleMinter = await deploy("AxelarSeaNftMerkleMinter");
+  const AxelarSeaNftMerkleMinterNative = await deploy("AxelarSeaNftMerkleMinterNative");
+  const AxelarSeaNftSignatureMinter = await deploy("AxelarSeaNftSignatureMinter");
+  const AxelarSeaNftSignatureMinterNative = await deploy("AxelarSeaNftSignatureMinterNative");
+  const AxelarSeaNftPublicMinter = await deploy("AxelarSeaNftPublicMinter");
+  const AxelarSeaNftPublicMinterNative = await deploy("AxelarSeaNftPublicMinterNative");
 
   const axelarSeaProjectRegistry = await deploy("AxelarSeaProjectRegistry");
 
   await axelarSeaProjectRegistry.setOperator(accounts[0].address, true).then(tx => tx.wait());
   await axelarSeaProjectRegistry.setTemplate(ERC721EnumerableTemplate.address, true).then(tx => tx.wait());
   await axelarSeaProjectRegistry.setTemplate(ERC721ATemplate.address, true).then(tx => tx.wait());
+
   await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftMerkleMinter.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftMerkleMinterNative.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftSignatureMinter.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftSignatureMinterNative.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftPublicMinter.address, true).then(tx => tx.wait());
+  await axelarSeaProjectRegistry.setMinterTemplate(AxelarSeaNftPublicMinterNative.address, true).then(tx => tx.wait());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -749,17 +749,24 @@ describe(`AxelarSea — initial test suite`, function () {
 
       it("Shouldn't be transfer only to whitelisted address for Exclusive", async () => {
         await nft1.connect(claimable2).transferFrom(claimable2.address, claimable1.address, 1).then(tx => tx.wait());
-        await nft2.connect(claimable2).transferFrom(claimable2.address, someone.address, 1).then(tx => tx.wait());
-        expect(nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1)).to.be.reverted;
+        
+        expect(nft2.connect(claimable2).transferFrom(claimable2.address, claimable1.address, 1)).to.be.reverted;
 
-        await nft1.connect(projectOwner).setExclusiveContract(claimable1.address, true).then(tx => tx.wait());
+        await nft2.connect(claimable2).setApprovalForAll(someone.address, true);
+
+        await nft2.connect(someone).transferFrom(claimable2.address, someone.address, 1).then(tx => tx.wait());
+
+        await nft2.connect(projectOwner).setExclusiveContract(claimable1.address, true).then(tx => tx.wait());
 
         await nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1).then(tx => tx.wait());
         await nft2.connect(claimable1).transferFrom(claimable1.address, someone.address, 1).then(tx => tx.wait());
 
-        await nft1.connect(projectOwner).setExclusiveContract(claimable1.address, false).then(tx => tx.wait());
+        await nft2.connect(projectOwner).setExclusiveContract(claimable1.address, false).then(tx => tx.wait());
+        await nft2.connect(projectOwner).setExclusiveContract(someone.address, false).then(tx => tx.wait());
 
-        expect(nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1)).to.be.reverted;
+        await nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1).then(tx => tx.wait());
+
+        expect(nft2.connect(claimable1).transferFrom(claimable1.address, someone.address, 1)).to.be.reverted;
       })
     })  
   })
