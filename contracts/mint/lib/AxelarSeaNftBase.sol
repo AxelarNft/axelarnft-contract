@@ -134,8 +134,9 @@ abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, Reent
 
   function _beforeTokenTransferCheck(address from) internal view {
     if (from != address(0)) {
+      // Produce human readable message to be easier for debug
       require(exclusiveLevel < 2, "Soulbound");
-      require(exclusiveLevel < 1 || registry.axelarSeaContract(msg.sender) || exclusiveContract[msg.sender], "Forbidden");
+      require(exclusiveLevel < 1 || registry.axelarSeaContract(msg.sender) || exclusiveContract[msg.sender], "Exclusive to AxelarSea");
     }
   }
 

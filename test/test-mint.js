@@ -150,7 +150,7 @@ describe(`AxelarSea — initial test suite`, function () {
         signature.v
       ).then(tx => tx.wait());
 
-      const nftFactory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
+      const nftFactory = await ethers.getContractFactory("AxelarSeaNft721A", owner);
       const minterFactory = await ethers.getContractFactory("AxelarSeaNftMerkleMinter", owner);
 
       return [await nftFactory.attach(nftAddress.nft), await minterFactory.attach(nftAddress.minter)];
@@ -404,7 +404,7 @@ describe(`AxelarSea — initial test suite`, function () {
         authorized: owner,
         unauthorized: someone,
         revertMessage: ONLYOWNER_REVERT,
-      }, nft721template.address, true)
+      }, someone.address, true)
     })
 
     it('Should be able to create new project', async () => {
@@ -623,6 +623,11 @@ describe(`AxelarSea — initial test suite`, function () {
         await expect(minter1.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3)).to.be.reverted
         await expect(minter2.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3)).to.be.reverted
       })
+
+      it("Shouldn't be transferable for Soulbound", async () => {
+        await nft1.connect(claimable2).transferFrom(claimable2.address, claimable1.address, 1).then(tx => tx.wait());
+        expect(nft2.connect(claimable2).transferFrom(claimable2.address, claimable1.address, 1)).to.be.reverted;
+      })
     })
 
     describe('NFT minting with ETH', async () => {
@@ -688,7 +693,7 @@ describe(`AxelarSea — initial test suite`, function () {
           owner: projectOwner.address,
           collectionId: collectionId1,
           projectId: projectId,
-          exclusiveLevel: 2,
+          exclusiveLevel: 1,
           maxSupply: 100,
           name: "Test 2",
           symbol: "TEST2",
@@ -740,6 +745,21 @@ describe(`AxelarSea — initial test suite`, function () {
 
         await expect(minter1.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3, { value: ethers.utils.parseEther("4") })).to.be.reverted
         await expect(minter2.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3, { value: ethers.utils.parseEther("11") })).to.be.reverted
+      })
+
+      it("Shouldn't be transfer only to whitelisted address for Exclusive", async () => {
+        await nft1.connect(claimable2).transferFrom(claimable2.address, claimable1.address, 1).then(tx => tx.wait());
+        await nft2.connect(claimable2).transferFrom(claimable2.address, someone.address, 1).then(tx => tx.wait());
+        expect(nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1)).to.be.reverted;
+
+        await nft1.connect(projectOwner).setExclusiveContract(claimable1.address, true).then(tx => tx.wait());
+
+        await nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1).then(tx => tx.wait());
+        await nft2.connect(claimable1).transferFrom(claimable1.address, someone.address, 1).then(tx => tx.wait());
+
+        await nft1.connect(projectOwner).setExclusiveContract(claimable1.address, false).then(tx => tx.wait());
+
+        expect(nft2.connect(someone).transferFrom(someone.address, claimable1.address, 1)).to.be.reverted;
       })
     })  
   })
