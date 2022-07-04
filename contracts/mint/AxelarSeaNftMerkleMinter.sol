@@ -34,7 +34,7 @@ abstract contract AxelarSeaNftMerkleMinterBase is AxelarSeaNftMinterWithPayment 
     return MerkleProof.verify(proof, merkleRoot, keccak256(abi.encodePacked(toCheck, maxAmount)));
   }
 
-  function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public nonReentrant {
+  function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public payable nonReentrant {
     if(!checkMerkle(to, maxAmount, proof)) revert NotWhitelisted();
     _pay(msg.sender, amount);
     nft.mint(to, maxAmount, amount);

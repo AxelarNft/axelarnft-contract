@@ -29,7 +29,7 @@ abstract contract AxelarSeaNftPublicMinterBase is AxelarSeaNftMinterWithPayment 
     );
   }
 
-  function mintPublic(address to, uint256 amount) public nonReentrant {
+  function mintPublic(address to, uint256 amount) public payable nonReentrant {
     _pay(msg.sender, amount);
     nft.mint(to, maxMintPerWallet, amount);
   }

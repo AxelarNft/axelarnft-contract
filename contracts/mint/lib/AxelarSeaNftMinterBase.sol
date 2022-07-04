@@ -109,6 +109,13 @@ abstract contract AxelarSeaNftMinterWithTokenPayment is AxelarSeaNftMinterWithPa
       priceData.mintTokenAddress.safeTransferFrom(from, registry.feeAddress(), fee);
       priceData.mintTokenAddress.safeTransferFrom(from, nft.fundAddress(), totalPrice - fee);
     }
+
+    if (msg.value > 0) {
+      (bool success, ) = payable(msg.sender).call{value: msg.value}("");
+      if (!success) {
+        revert TransferFailed();
+      }
+    }
   }
 }
 

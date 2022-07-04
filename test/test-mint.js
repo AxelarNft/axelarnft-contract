@@ -226,6 +226,11 @@ describe(`AxelarSea — initial test suite`, function () {
     projectRegistry = await deployContract("AxelarSeaProjectRegistry", owner);
     nft721template = await deployContract("AxelarSeaNft721A", owner);
     nftMerkleMinterTemplate = await deployContract("AxelarSeaNftMerkleMinter", owner);
+    nftMerkleMinterNativeTemplate = await deployContract("AxelarSeaNftMerkleMinterNative", owner);
+    nftPublicMinterTemplate = await deployContract("AxelarSeaNftPublicMinter", owner);
+    nftPublicMinterNativeTemplate = await deployContract("AxelarSeaNftPublicMinterNative", owner);
+    nftSignatureMinterTemplate = await deployContract("AxelarSeaNftSignatureMinter", owner);
+    nftSignatureMinterNativeTemplate = await deployContract("AxelarSeaNftSignatureMinterNative", owner);
 
     ({
       EIP1271WalletFactory,
@@ -329,6 +334,46 @@ describe(`AxelarSea — initial test suite`, function () {
         unauthorized: someone,
         revertMessage: ONLYOWNER_REVERT,
       }, nftMerkleMinterTemplate.address, true)
+
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setMinterTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftMerkleMinterNativeTemplate.address, true)
+
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setMinterTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftSignatureMinterTemplate.address, true)
+
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setMinterTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftSignatureMinterNativeTemplate.address, true)
+
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setMinterTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftPublicMinterTemplate.address, true)
+
+      await testPermission({
+        contract: projectRegistry,
+        fn: 'setMinterTemplate',
+        authorized: owner,
+        unauthorized: someone,
+        revertMessage: ONLYOWNER_REVERT,
+      }, nftPublicMinterNativeTemplate.address, true)
     })
 
     // 2% fee
@@ -455,7 +500,7 @@ describe(`AxelarSea — initial test suite`, function () {
       );
     })
 
-    describe('NFT minting', async () => {
+    describe('NFT minting with token', async () => {
       let nft1, minter1;
       let nft2, minter2;
       let nft3, minter3;
@@ -579,5 +624,123 @@ describe(`AxelarSea — initial test suite`, function () {
         await expect(minter2.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3)).to.be.reverted
       })
     })
+
+    describe('NFT minting with ETH', async () => {
+      let nft1, minter1;
+      let nft2, minter2;
+      let nft3, minter3;
+      let merkleTree;
+      
+      it('Should be able to deploy NFT', async () => {
+        let blockTimestamp = await getBlockTimestamp()
+        
+        merkleTree = merkleTreeForMint([claimable1.address, claimable2.address, claimable3.address], [1, 3, 1])
+
+        console.log('ROOT', merkleTree.getHexRoot())
+        console.log(merkleTree.toString())
+
+        const packedParameter = merkleMinterData({
+          merkleRoot: merkleTree.getHexRoot(),
+          mintPriceStart: ethers.utils.parseEther("10"),
+          mintPriceEnd: ethers.utils.parseEther("4"),
+          mintPriceStep: ethers.utils.parseEther("0.01"),
+          mintStart: blockTimestamp + 1000,
+          mintEnd: blockTimestamp + 2000,
+          mintTokenAddress: testERC20.address, // Ignored
+        });
+
+        const packedParameter2 = merkleMinterData({
+          merkleRoot: merkleTree.getHexRoot(),
+          mintPriceStart: ethers.utils.parseEther("11"),
+          mintPriceEnd: ethers.utils.parseEther("11"),
+          mintPriceStep: ethers.utils.parseEther("0"),
+          mintStart: blockTimestamp + 1000,
+          mintEnd: blockTimestamp + 2000,
+          mintTokenAddress: testERC20.address, // Ignored
+        });
+  
+        const collectionId1 = ethers.utils.hexZeroPad('0x211101', 32);
+        // const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);
+        // const collectionId3 = ethers.utils.hexZeroPad('0x111103', 32);
+        // const collectionId4 = ethers.utils.hexZeroPad('0x111104', 32);
+        const projectId = ethers.utils.hexZeroPad('0x1234', 32);
+
+        // console.log(packedParameter)
+  
+        let deployment1 = await deployNft({
+          template: nft721template.address,
+          minterTemplate: nftMerkleMinterNativeTemplate.address,
+          owner: projectOwner.address,
+          collectionId: collectionId1,
+          projectId: projectId,
+          exclusiveLevel: 0,
+          maxSupply: 100,
+          name: "Test 1",
+          symbol: "TEST1",
+          data: packedParameter,
+        });
+
+        nft1 = deployment1[0];
+        minter1 = deployment1[1];
+
+        nft2 = await deployNft({
+          template: nft721template.address,
+          owner: projectOwner.address,
+          collectionId: collectionId1,
+          projectId: projectId,
+          exclusiveLevel: 2,
+          maxSupply: 100,
+          name: "Test 2",
+          symbol: "TEST2",
+        });
+
+        minter2 = await deployMinter(
+          nft2,
+          projectOwner,
+          nftMerkleMinterNativeTemplate.address,
+          packedParameter2,
+        )
+  
+        console.log(nft1.address, minter1.address)
+        console.log(nft2.address, minter2.address)
+      })
+
+      it('Should be able to mint', async () => {
+        // console.log(merkleKeyForMint(claimable1.address, 1))
+
+        let proof1 = merkleTree.getHexProof(merkleKeyForMint(claimable1.address, 1))
+        let proof2 = merkleTree.getHexProof(merkleKeyForMint(claimable2.address, 3))
+        let proof3 = merkleTree.getHexProof(merkleKeyForMint(claimable3.address, 1))
+
+        await expect(minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1, { value: ethers.utils.parseEther("10") })).to.be.reverted;
+
+        await network.provider.send("evm_increaseTime", [1000]);
+        await network.provider.send("evm_mine");
+
+        await minter1.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1, { value: ethers.utils.parseEther("10") }).then(tx => tx.wait())
+        await minter2.connect(claimable1).mintMerkle(claimable1.address, 1, 1, proof1, { value: ethers.utils.parseEther("11") }).then(tx => tx.wait())
+
+        await network.provider.send("evm_increaseTime", [200]);
+        await network.provider.send("evm_mine");
+
+        await minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2, { value: ethers.utils.parseEther("8") }).then(tx => tx.wait())
+        await minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2, { value: ethers.utils.parseEther("11") }).then(tx => tx.wait())
+
+        await network.provider.send("evm_increaseTime", [600]);
+        await network.provider.send("evm_mine");
+
+        await minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 2, proof2, { value: ethers.utils.parseEther("8") }).then(tx => tx.wait())
+        await minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 2, proof2, { value: ethers.utils.parseEther("22") }).then(tx => tx.wait())
+
+        await expect(minter1.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2, { value: ethers.utils.parseEther("4") })).to.be.reverted
+        await expect(minter2.connect(claimable2).mintMerkle(claimable2.address, 3, 1, proof2, { value: ethers.utils.parseEther("11") })).to.be.reverted
+
+        await network.provider.send("evm_increaseTime", [410]);
+        await network.provider.send("evm_mine");
+
+        await expect(minter1.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3, { value: ethers.utils.parseEther("4") })).to.be.reverted
+        await expect(minter2.connect(claimable3).mintMerkle(claimable3.address, 1, 1, proof3, { value: ethers.utils.parseEther("11") })).to.be.reverted
+      })
+    })  
   })
 });

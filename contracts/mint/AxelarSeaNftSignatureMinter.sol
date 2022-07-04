@@ -35,7 +35,7 @@ abstract contract AxelarSeaNftSignatureMinterBase is AxelarSeaNftMinterWithPayme
     bytes32 sigS,
     uint8 sigV,
     bytes memory payload
-  ) public nonReentrant {
+  ) public payable nonReentrant {
     verifyMetaTransaction(
       operator,
       payload,
