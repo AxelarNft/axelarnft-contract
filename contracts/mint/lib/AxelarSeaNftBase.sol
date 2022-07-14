@@ -159,7 +159,11 @@ abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, Reent
   }
 
   function recoverETH() external onlyOwner {
-    payable(msg.sender).call{value: address(this).balance}("");
+    (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
+
+    if (!success) {
+      revert TransferFailed();
+    }
   }
 
   function recoverERC20(IERC20 token) external onlyOwner {

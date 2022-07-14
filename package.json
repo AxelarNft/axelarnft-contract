@@ -33,7 +33,8 @@
 	},
 	"dependencies": {
 		"@axelar-network/axelar-cgp-solidity": "^3.2.1",
-		"@rari-capital/solmate": "^7.0.0-alpha.3",
+		"@openzeppelin/contracts-upgradeable": "^4.7.0",
+		"@rari-capital/solmate": "^6.4.0",
 		"@typechain/ethers-v5": "^10.0.0",
 		"axios": "^0.27.2",
 		"dotenv": "^16.0.1",
