@@ -18,9 +18,15 @@ interface IAxelarSeaMetaWalletFactoryOperator {
 contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver {
   using SafeTransferLib for IERC20;
 
+  event ExecutionFailed(address indexed caller, address indexed target, address indexed token, uint256 amount, bytes payload, string reason);
+  event ExecutionSuccess(address indexed caller, address indexed target, address indexed token, uint256 amount, bytes payload, bytes returnData);
+
   // Not allowed to change the owner
   address public owner;
   address public factory;
+
+  address private _contextToken;
+  uint256 private _contextTokenAmount;
 
   function initialize(
     address _owner
@@ -45,18 +51,47 @@ contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver
     _;
   }
 
-  function execute(address target, uint256 value, bytes calldata payload) public onlyOperator(msg.sender) returns(bytes memory) {
-    (bool success, bytes memory data) = target.call{value: value}(payload);
+  function execute(address target, bytes calldata payload) public payable onlyOperator(msg.sender) returns(bytes memory) {
+    (bool success, bytes memory data) = target.call{value: msg.value}(payload);
 
     if (!success) {
-      // Revert and pass reason along if one was returned.
-      RevertReason.revertWithReasonIfOneIsReturned();
-
-      // Otherwise, revert with a generic error message.
-      revert LowLevelCallFailed();
+      string memory reason = RevertReason.getRevertMsg(data);
+      emit ExecutionFailed(msg.sender, target, _contextToken, _contextTokenAmount, payload, reason);
+      revert(reason);
     }
+
+    emit ExecutionSuccess(msg.sender, target, _contextToken, _contextTokenAmount, payload, data);
     
     return data;
+  }
+
+  function executeWithToken(
+    IERC20 token,
+    uint256 amount,
+    address target,
+    bytes calldata payload
+  ) public payable onlyOperator(msg.sender) returns(bytes memory data) {
+    if (address(token) != address(0)) {
+      token.safeTransferFrom(msg.sender, address(this), amount);
+      approveERC20(token, target, amount);
+    }
+
+    _contextToken = address(token);
+    _contextTokenAmount = amount;
+
+    data = execute(target, payload);
+
+    _contextToken = address(0);
+    _contextTokenAmount = 0;
+  }
+
+  // Note: For ERC721 and ERC1155 use execute with appropriate function directly
+
+  function approveERC20(IERC20 token, address spender, uint256 amount) public onlyOperator(msg.sender) {
+    try token.approve(spender, amount) returns (bool) {} catch {
+      token.safeApprove(spender, 0);
+      token.safeApprove(spender, amount);
+    }
   }
 
   /**
