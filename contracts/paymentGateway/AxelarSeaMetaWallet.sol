@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -11,6 +11,8 @@ import "../lib/SafeTransferLib.sol";
 import "../lib/RevertReason.sol";
 import "./AxelarSeaPGError.sol";
 
+bytes4 constant VALID_SIGNATURE = 0x1626ba7e;
+
 interface IAxelarSeaMetaWalletFactoryOperator {
   function operator(address op) external view returns(bool);
 }
@@ -18,6 +20,7 @@ interface IAxelarSeaMetaWalletFactoryOperator {
 contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver {
   using SafeTransferLib for IERC20;
 
+  event Signed(address indexed caller, uint256 indexed commandId, bytes32 indexed digest, bytes32 secretHash);
   event ExecutionFailed(address indexed caller, address indexed target, address indexed token, uint256 amount, bytes payload, string reason);
   event ExecutionSuccess(address indexed caller, address indexed target, address indexed token, uint256 amount, bytes payload, bytes returnData);
 
@@ -27,6 +30,12 @@ contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver
 
   address private _contextToken;
   uint256 private _contextTokenAmount;
+
+  // commandId => digest map, can be search using public
+  mapping(uint256 => bytes32) public approvedDigest;
+
+  // secretHash = keccak256(commandId, secret) => digest map, cannot reverse lookup for secret
+  mapping(bytes32 => bytes32) private approvedDigestHash;
 
   function initialize(
     address _owner
@@ -83,6 +92,11 @@ contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver
 
     _contextToken = address(0);
     _contextTokenAmount = 0;
+  }
+
+  function sign(uint256 commandId, bytes32 secretHash, bytes32 digest) public onlyOperator(msg.sender) {
+    approvedDigest[commandId] = approvedDigestHash[secretHash] = digest;
+    emit Signed(msg.sender, commandId, digest, secretHash);
   }
 
   // Note: For ERC721 and ERC1155 use execute with appropriate function directly
@@ -182,6 +196,28 @@ contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver
     IERC1155(msg.sender).safeBatchTransferFrom(address(this), owner, ids, values, data);
 
     return IERC1155Receiver.onERC1155BatchReceived.selector;
+  }
+
+  /**
+   * @dev Should return whether the signature provided is valid for the provided hash
+   * @param digest      Hash of the data to be signed
+   * @param signature   Signature byte array associated with _hash
+   *
+   * MUST return the bytes4 magic value 0x1626ba7e when function passes.
+   * MUST NOT modify state (using STATICCALL for solc < 0.5, view modifier for solc > 0.5)
+   * MUST allow external calls
+   */ 
+  function isValidSignature(
+    bytes32 digest, 
+    bytes memory signature
+  ) public view returns (bytes4) {
+    (uint256 commandId, ) = abi.decode(signature, (uint256, bytes32));
+
+    if (approvedDigest[commandId] != digest || approvedDigestHash[keccak256(signature)] != digest) {
+      revert InvalidSignature();
+    }
+
+    return VALID_SIGNATURE;
   }
 
   function recoverETH(uint256 amount) external onlyOwner {

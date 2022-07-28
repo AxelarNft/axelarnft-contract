@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -28,6 +28,7 @@ contract AxelarSeaRangoPG is IRangoMessageReceiver, OwnableUpgradeable {
     enum PurchaseType { BOUGHT, SOLD_OUT }
     event NFTPurchaseStatus(uint assetId, address buyer, PurchaseType purchaseType);
 
+    mapping(address => bool) public whitelistedRelayer;
     address payable public rangoContract;
     AxelarSeaMetaWalletFactory public metaWalletFactory;
 
@@ -35,6 +36,12 @@ contract AxelarSeaRangoPG is IRangoMessageReceiver, OwnableUpgradeable {
         rangoContract = _rangoContract;
         metaWalletFactory = _metaWalletFactory;
         __Ownable_init();
+    }
+
+    event WhitelistedRelayer(address indexed relayer, bool whitelisted);
+    function whitelistRelayer(address relayer, bool whitelisted) public onlyOwner {
+        whitelistedRelayer[relayer] = whitelisted;
+        emit WhitelistedRelayer(relayer, whitelisted);
     }
 
     receive() external payable { }
@@ -100,6 +107,14 @@ contract AxelarSeaRangoPG is IRangoMessageReceiver, OwnableUpgradeable {
 
     function recoverERC20(IERC20 token) external onlyOwner {
         token.safeTransfer(msg.sender, token.balanceOf(address(this)));
+    }
+
+    function recoverERC721(IERC721 token, uint256 tokenId, bytes calldata data) external onlyOwner {
+        token.safeTransferFrom(address(this), msg.sender, tokenId, data);
+    }
+
+    function recoverERC1155(IERC1155 token, uint256 tokenId, uint256 amount, bytes calldata data) external onlyOwner {
+        token.safeTransferFrom(address(this), msg.sender, tokenId, amount, data);
     }
 
     function _getRevertMsg(bytes memory _returnData) internal pure returns (string memory) {
