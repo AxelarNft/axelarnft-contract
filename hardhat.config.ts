@@ -3,7 +3,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import { task } from "hardhat/config";
-const { privateKey, privateKeyTest, bscscanApiKey } = require('./secrets.json');
+const { privateKey, bscscanApiKey } = require('./secrets.json');
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -91,43 +91,43 @@ module.exports = {
 		ropsten: {
       url: "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 3,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
 		goerli: {
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 5,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     bsctestnet: {
       url: "https://data-seed-prebsc-2-s3.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     polygontestnet: {
       url: "https://matic-mumbai.chainstacklabs.com",
       chainId: 80001,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     avaxtestnet: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       chainId: 43113,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     fantomtestnet: {
       url: "https://rpc.testnet.fantom.network/",
       chainId: 4002,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     moonbeamtestnet: {
       url: "https://rpc.testnet.moonbeam.network/",
       chainId: 1287,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
     arbitrumtestnet: {
       url: "https://rinkeby.arbitrum.io/rpc",
       chainId: 421611,
-      accounts: [privateKeyTest]
+      accounts: [privateKey]
     },
 
     mainnet: {
@@ -139,7 +139,7 @@ module.exports = {
 		bscfork: {
 			url: `http://104.248.144.44`,
 			chainId: 56,
-			accounts: [privateKeyTest],
+			accounts: [privateKey],
 		},
   }
 };
