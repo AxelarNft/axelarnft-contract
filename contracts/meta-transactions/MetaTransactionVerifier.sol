@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import {EIP712Base} from "./EIP712Base.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/SignatureCheckerUpgradeable.sol";
 
 contract MetaTransactionVerifier is EIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH = keccak256(
@@ -30,11 +31,9 @@ contract MetaTransactionVerifier is EIP712Base {
 
     function verifyMetaTransaction(
         address userAddress,
-        bytes memory functionSignature,
         uint256 nonce,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
+        bytes calldata functionSignature,
+        bytes calldata signature
     ) internal {
         require(!nonces[nonce], "Already run");
 
@@ -45,7 +44,7 @@ contract MetaTransactionVerifier is EIP712Base {
         });
 
         require(
-            _verifyMetaTransaction(userAddress, metaTx, sigR, sigS, sigV),
+            _verifyMetaTransaction(userAddress, metaTx, signature),
             "Signer and signature do not match"
         );
 
@@ -72,19 +71,19 @@ contract MetaTransactionVerifier is EIP712Base {
     function _verifyMetaTransaction(
         address signer,
         MetaTransaction memory metaTx,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
+        bytes calldata signature
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
 
-        return
-            signer ==
-            ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
-                sigV,
-                sigR,
-                sigS
-            );
+        return SignatureCheckerUpgradeable.isValidSignatureNow(signer, toTypedMessageHash(hashMetaTransaction(metaTx)), signature);
+
+        // return
+        //     signer ==
+        //     ecrecover(
+        //         toTypedMessageHash(hashMetaTransaction(metaTx)),
+        //         sigV,
+        //         sigR,
+        //         sigS
+        //     );
     }
 }

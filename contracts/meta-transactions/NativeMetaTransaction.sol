@@ -3,17 +3,16 @@
 pragma solidity ^0.8.0;
 
 import {MetaTransactionVerifier} from "./MetaTransactionVerifier.sol";
+import "../lib/RevertReason.sol";
 
 contract NativeMetaTransaction is MetaTransactionVerifier {
     function executeMetaTransaction(
         address userAddress,
-        bytes memory functionSignature,
         uint256 nonce,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
+        bytes calldata functionSignature,
+        bytes calldata signature
     ) public payable returns (bytes memory) {
-        verifyMetaTransaction(userAddress, functionSignature, nonce, sigR, sigS, sigV);
+        verifyMetaTransaction(userAddress, nonce, functionSignature, signature);
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -25,7 +24,13 @@ contract NativeMetaTransaction is MetaTransactionVerifier {
         (bool success, bytes memory returnData) = address(this).call(
             abi.encodePacked(functionSignature, userAddress)
         );
-        require(success, "Function call not successful");
+
+        // require(success, "Function call not successful");
+
+        if (!success) {
+            RevertReason.revertWithReasonIfOneIsReturned();
+            revert("Function call not successful");
+        }
 
         return returnData;
     }

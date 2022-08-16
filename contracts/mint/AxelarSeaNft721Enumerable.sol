@@ -58,4 +58,12 @@ contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
   function symbol() public view override(AxelarSeaNftBase, ERC721) virtual returns (string memory) {
     return AxelarSeaNftBase.symbol();
   }
+
+  function _msgSender() internal view override(Context, ContextUpgradeable) virtual returns (address) {
+    return ContextUpgradeable._msgSender();
+  }
+
+  function _msgData() internal view override(Context, ContextUpgradeable) virtual returns (bytes calldata) {
+    return ContextUpgradeable._msgData();
+  }
 }

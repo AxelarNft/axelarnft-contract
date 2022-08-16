@@ -4,7 +4,8 @@ import { Signature, Wallet, Signer, utils } from 'ethers';
 
 import { abi as AxelarSeaProjectRegistryABI } from '../../artifacts/contracts/mint/AxelarSeaProjectRegistry.sol/AxelarSeaProjectRegistry.json';
 
-export interface SignatureWithFunctionSignature extends Signature {
+export interface SignatureWithFunctionSignature {
+  signature: string;
   functionSignature: string;
   nonce: string;
 }
@@ -76,7 +77,7 @@ export async function generateSignature(privateKey: string, contractAddress: str
   let signature = signingKey.signDigest(typedMessage);
 
   return {
-    ...signature,
+    signature: signature.compact,
     functionSignature: functionSignature,
     nonce: nonce,
   }

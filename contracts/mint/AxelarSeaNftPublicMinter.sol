@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./lib/AxelarSeaNftMinterBase.sol";
 
 abstract contract AxelarSeaNftPublicMinterBase is AxelarSeaNftMinterWithPayment {
-  using SafeERC20 for IERC20;
+  using SafeTransferLib for IERC20;
 
   uint256 public maxMintPerWallet;
 

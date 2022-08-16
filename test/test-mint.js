@@ -26,14 +26,14 @@ const {
   defaultBuyNowMirrorFulfillment,
   defaultAcceptOfferMirrorFulfillment,
 } = require("./utils/encoding");
-const { randomInt } = require("crypto");
+const { randomInt, sign } = require("crypto");
 const {
   fixtureERC20,
   fixtureERC721,
   fixtureERC1155,
   seaportFixture,
 } = require("./utils/fixtures");
-const { deployContract } = require("./utils/contracts");
+const { deployContract, deployUpgradeable } = require("./utils/contracts");
 const { testPermission } = require("./utils/permission");
 const { getBlockTimestamp } = require("./utils/blockTimestamp");
 const {
@@ -143,11 +143,9 @@ describe(`AxelarSea — initial test suite`, function () {
 
       await projectRegistry.connect(someone).executeMetaTransaction(
         operator.address,
-        signature.functionSignature,
         signature.nonce,
-        signature.r,
-        signature.s,
-        signature.v
+        signature.functionSignature,
+        signature.signature,
       ).then(tx => tx.wait());
 
       const nftFactory = await ethers.getContractFactory("AxelarSeaNft721A", owner);
@@ -183,11 +181,9 @@ describe(`AxelarSea — initial test suite`, function () {
       );
       await projectRegistry.connect(someone).executeMetaTransaction(
         operator.address,
-        signature.functionSignature,
         signature.nonce,
-        signature.r,
-        signature.s,
-        signature.v
+        signature.functionSignature,
+        signature.signature,
       ).then(tx => tx.wait());
 
       const factory = await ethers.getContractFactory("AxelarSeaNft721Enumerable", owner);
@@ -215,7 +211,7 @@ describe(`AxelarSea — initial test suite`, function () {
 
     chainId = network.chainId;
 
-    owner = new ethers.Wallet(randomHex(32), provider);
+    owner = (await ethers.getSigners())[0];
     someone = new ethers.Wallet(randomHex(32), provider);
     operator = new ethers.Wallet(randomHex(32), provider);
 
@@ -223,7 +219,7 @@ describe(`AxelarSea — initial test suite`, function () {
       [owner, someone, operator].map((wallet) => faucet(wallet.address, provider))
     );
 
-    projectRegistry = await deployContract("AxelarSeaProjectRegistry", owner);
+    projectRegistry = await deployUpgradeable("AxelarSeaProjectRegistry");
     nft721template = await deployContract("AxelarSeaNft721A", owner);
     nftMerkleMinterTemplate = await deployContract("AxelarSeaNftMerkleMinter", owner);
     nftMerkleMinterNativeTemplate = await deployContract("AxelarSeaNftMerkleMinterNative", owner);
@@ -492,11 +488,9 @@ describe(`AxelarSea — initial test suite`, function () {
       
       await projectRegistry.executeMetaTransaction(
         operator.address,
-        signature.functionSignature,
         signature.nonce,
-        signature.r,
-        signature.s,
-        signature.v
+        signature.functionSignature,
+        signature.signature,
       );
     })
 

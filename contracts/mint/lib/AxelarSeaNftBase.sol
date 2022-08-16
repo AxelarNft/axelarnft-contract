@@ -12,13 +12,12 @@ import "../AxelarSeaProjectRegistry.sol";
 
 import "./AxelarSeaMintingErrors.sol";
 
-abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, ReentrancyGuard {
+// Use Upgradeable for minimal clone pattern but actually is is not upgradeable
+abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializable, ReentrancyGuardUpgradeable {
   using Strings for uint256;
-  using SafeERC20 for IERC20;
+  using SafeTransferLib for IERC20;
 
-  bool private initialized;
-
-  bool public newMinterStopped = false;
+  bool public newMinterStopped; // default to false
 
   AxelarSeaProjectRegistry public registry;
   address public fundAddress;
@@ -33,18 +32,16 @@ abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, Reent
   mapping(address => bool) public minters;
   mapping(address => uint256) public walletMinted;
 
-  uint256 public mintFeeOverride = 0;
-  bool public enableMintFeeOverride = false;
+  uint256 public mintFeeOverride; // default to 0
+  bool public enableMintFeeOverride; // default to false
 
-  string public baseTokenUriPrefix = "";
-  string public baseTokenUriSuffix = "";
+  string public baseTokenUriPrefix;
+  string public baseTokenUriSuffix;
 
   modifier onlyMinter(address addr) {
     require(minters[addr], "Forbidden");
     _;
   }
-
-  constructor() {}
 
   function initialize(
     address owner,
@@ -53,10 +50,7 @@ abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, Reent
     uint256 _maxSupply,
     string memory _nftName,
     string memory _nftSymbol
-  ) public {
-    require(!initialized, "Initialized");
-
-    initialized = true;
+  ) public initializer {
     registry = AxelarSeaProjectRegistry(msg.sender);
     collectionId = _collectionId;
     exclusiveLevel = _exclusiveLevel;
@@ -67,6 +61,7 @@ abstract contract AxelarSeaNftBase is Ownable, IAxelarSeaNftInitializable, Reent
     fundAddress = owner;
 
     _transferOwnership(owner);
+    __ReentrancyGuard_init();
   }
 
   event StopNewMinter();

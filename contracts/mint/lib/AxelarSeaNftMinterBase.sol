@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IAxelarSeaNftInitializable.sol";
 import "./AxelarSeaNftBase.sol";
 
-abstract contract AxelarSeaNftMinterBase is Ownable, ReentrancyGuard, IAxelarSeaMinterInitializable {
-  using SafeERC20 for IERC20;
+// Use Upgradeable for minimal clone pattern but actually is is not upgradeable
+abstract contract AxelarSeaNftMinterBase is OwnableUpgradeable, ReentrancyGuardUpgradeable, IAxelarSeaMinterInitializable {
+  using SafeTransferLib for IERC20;
 
   struct AxelarSeaNftPriceData {
     uint256 mintPriceStart;
@@ -17,7 +18,6 @@ abstract contract AxelarSeaNftMinterBase is Ownable, ReentrancyGuard, IAxelarSea
     IERC20 mintTokenAddress;
   }
 
-  bool private initialized;
   AxelarSeaProjectRegistry public registry;
   AxelarSeaNftPriceData public priceData;
   AxelarSeaNftBase public nft;
@@ -40,15 +40,13 @@ abstract contract AxelarSeaNftMinterBase is Ownable, ReentrancyGuard, IAxelarSea
     address targetNft,
     address owner,
     bytes memory data
-  ) external {
-    require(!initialized, "Initialized");
-    initialized = true;
-
+  ) external initializer {
     nft = AxelarSeaNftBase(targetNft);
     registry = nft.registry();
 
     _updateConfigAndCheckTime(data);
     _transferOwnership(owner);
+    __ReentrancyGuard_init();
   }
 
   function recoverETH() external onlyOwner {
@@ -95,7 +93,7 @@ abstract contract AxelarSeaNftMinterWithPayment is AxelarSeaNftMinterBase {
 }
 
 abstract contract AxelarSeaNftMinterWithTokenPayment is AxelarSeaNftMinterWithPayment {
-  using SafeERC20 for IERC20;
+  using SafeTransferLib for IERC20;
 
   function _pay(address from, uint256 amount) internal override {
     if (block.timestamp < priceData.mintStart || block.timestamp > priceData.mintEnd) {

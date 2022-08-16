@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./lib/AxelarSeaNftMinterBase.sol";
 
 abstract contract AxelarSeaNftMerkleMinterBase is AxelarSeaNftMinterWithPayment {
-  using SafeERC20 for IERC20;
+  using SafeTransferLib for IERC20;
 
   bytes32 public merkleRoot;
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./lib/AxelarSeaNftMinterBase.sol";
 
 abstract contract AxelarSeaNftSignatureMinterBase is AxelarSeaNftMinterWithPayment, MetaTransactionVerifier {
-  using SafeERC20 for IERC20;
+  using SafeTransferLib for IERC20;
 
   address public operator;
 
@@ -31,18 +31,14 @@ abstract contract AxelarSeaNftSignatureMinterBase is AxelarSeaNftMinterWithPayme
 
   function mintSignature(
     uint256 nonce,
-    bytes32 sigR,
-    bytes32 sigS,
-    uint8 sigV,
-    bytes memory payload
+    bytes calldata payload,
+    bytes calldata signature
   ) public payable nonReentrant {
     verifyMetaTransaction(
       operator,
-      payload,
       nonce,
-      sigR,
-      sigS,
-      sigV
+      payload,
+      signature
     );
 
     (address to, uint256 maxAmount, uint256 amount) = abi.decode(payload, (address, uint256, uint256));

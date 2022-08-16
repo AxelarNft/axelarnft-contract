@@ -4,17 +4,19 @@ pragma solidity ^0.8.0;
 import "./lib/IAxelarSeaNftInitializable.sol";
 import "../meta-transactions/NativeMetaTransaction.sol";
 import "../meta-transactions/ContextMixin.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "../lib/SafeTransferLib.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "./lib/AxelarSeaMintingErrors.sol";
 
-contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixin, ReentrancyGuard {
-  using SafeERC20 for IERC20;
+contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, ContextMixin, ReentrancyGuardUpgradeable {
+  using SafeTransferLib for IERC20;
 
   mapping(address => bool) public operators;
   mapping(address => bool) public templates;
@@ -29,14 +31,24 @@ contract AxelarSeaProjectRegistry is Ownable, NativeMetaTransaction, ContextMixi
 
   // Minting fee
   address public feeAddress;
-  uint256 public baseMintFee = 0.02 ether;
+  uint256 public baseMintFee;
 
-  string public baseContractURI = "https://api-nftdrop.axelarsea.com/contractMetadata/";
-  string public baseTokenURI = "https://api-nftdrop.axelarsea.com/tokenMetadata/";
+  string public baseContractURI;
+  string public baseTokenURI;
 
-  constructor() {
+  // Best practice to leave room for more variable if upgradeable
+  uint256[200] private __GAP;
+
+  function initialize() public initializer {
+    baseMintFee = 0.02 ether; // 2%
+    baseContractURI = "https://api-nftdrop.axelarsea.com/contractMetadata/"; // TODO
+    baseTokenURI = "https://api-nftdrop.axelarsea.com/tokenMetadata/"; // TODO
+
     feeAddress = msg.sender;
     _initializeEIP712("AxelarSeaProjectRegistry");
+
+    __Ownable_init();
+    __ReentrancyGuard_init();
   }
 
   modifier onlyOperator {
