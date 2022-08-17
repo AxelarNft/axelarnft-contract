@@ -30,6 +30,6 @@ export async function deployContract<C extends Contract>(
 export async function deployUpgradeable(contractName: string, ...args: any[]) {
   const Contract = await ethers.getContractFactory(contractName);
   const contract = await upgrades.deployProxy(Contract, args, { initializer: 'initialize' });
-  console.log(contractName, " deployed to:", contract.address);
+  console.log(contractName, "deployed to:", contract.address);
   return contract;
 }

@@ -21,7 +21,7 @@ async function deploy(contractName, ...args) {
   const Contract = await hre.ethers.getContractFactory(contractName);
   const contract = await Contract.deploy(...args);
   await contract.deployed();
-  console.log(contractName + " deployed to:", contract.address);
+  console.log(contractName + "deployed to:", contract.address);
 
   return contract;
 }
