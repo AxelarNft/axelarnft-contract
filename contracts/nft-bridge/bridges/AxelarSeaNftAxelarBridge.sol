@@ -3,14 +3,14 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IAxelarSeaNftBridge.sol";
-import {IAxelarExecutable} from "@axelar-network/axelar-cgp-solidity/src/interfaces/IAxelarExecutable.sol";
-import {IAxelarGasReceiver} from "@axelar-network/axelar-cgp-solidity/src/interfaces/IAxelarGasReceiver.sol";
+import {IAxelarExecutable} from "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarExecutable.sol";
+import {IAxelarGasService} from "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGasService.sol";
 
 contract AxelarSeaNftAxelarBridge is IAxelarExecutable, IAxelarSeaNftBridge, Ownable {
-  IAxelarGasReceiver public immutable gasReceiver;
+  IAxelarGasService public immutable gasReceiver;
 
   constructor(address _controller, address _gateway, address _gasReceiver) IAxelarExecutable(_gateway) IAxelarSeaNftBridge(_controller) {
-    gasReceiver = IAxelarGasReceiver(_gasReceiver);
+    gasReceiver = IAxelarGasService(_gasReceiver);
   }
 
   struct SiblingData {

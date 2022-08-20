@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 // Minimal contract for allowing token transfer seperated from user wallet
 
 import "./Marketplace.sol";
-import {IAxelarExecutable} from "@axelar-network/axelar-cgp-solidity/src/interfaces/IAxelarExecutable.sol";
-import {IAxelarGasReceiver} from "@axelar-network/axelar-cgp-solidity/src/interfaces/IAxelarGasReceiver.sol";
+import {IAxelarExecutable} from "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarExecutable.sol";
+import {IAxelarGasService} from "@axelar-network/axelar-cgp-solidity/contracts/interfaces/IAxelarGasService.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -27,7 +27,7 @@ contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable
   event Buy(address indexed token, uint256 indexed tokenId, uint256 amount, address priceToken, uint256 price, address indexed seller);
 
   AxelarSeaMarketplace public immutable master;
-  IAxelarGasReceiver public immutable gasReceiver;
+  IAxelarGasService public immutable gasReceiver;
   string public addressthis;
   IWETH public immutable weth;
 
@@ -35,7 +35,7 @@ contract MarketplaceMetaWalletGMP is ReentrancyGuard, IAxelarExecutable, Ownable
 
   constructor(address _master, address _gateway, address _gasReceiver, address _WETH) IAxelarExecutable(_gateway) {
     master = AxelarSeaMarketplace(_master);
-    gasReceiver = IAxelarGasReceiver(_gasReceiver);
+    gasReceiver = IAxelarGasService(_gasReceiver);
     addressthis = Strings.toHexString(uint160(address(this)), 20);
     weth = IWETH(_WETH);
   }

@@ -2,13 +2,10 @@
 # yarn lockfile v1
 
 
-"@axelar-network/axelar-cgp-solidity@^3.2.1":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@axelar-network/axelar-cgp-solidity/-/axelar-cgp-solidity-3.2.2.tgz#413107370c3ebfcdb8f50a5a2e595444ea92f00d"
-  integrity sha512-5qtqFNVD4HCmSCRt10U/EO3BUf7JueHTSzL8iDXiB7A5bNJO5uyi2Cpv3ElHkndOPP+STNTcxtKtKkh2MCVuHA==
-  dependencies:
-    ethereum-waffle "^3.4.0"
-    lodash "^4.17.21"
+"@axelar-network/axelar-cgp-solidity@^4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@axelar-network/axelar-cgp-solidity/-/axelar-cgp-solidity-4.3.0.tgz#90b42b261759fe6b229932152a0911cee071a6ee"
+  integrity sha512-0cCgCFtxnipyzSplPnj/HxDx4DqqHGEr+J7M7NWKM1fXvfS4t/70aCAw/h9GYW8dZ3BmKOqKAYQCNpmP+2Oa+w==
 
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
@@ -3258,7 +3255,7 @@ ethereum-cryptography@^1.0.3:
     "@scure/bip32" "1.1.0"
     "@scure/bip39" "1.1.0"
 
-ethereum-waffle@^3.0.0, ethereum-waffle@^3.4.0:
+ethereum-waffle@^3.0.0:
   version "3.4.4"
   resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-3.4.4.tgz#1378b72040697857b7f5e8f473ca8f97a37b5840"
   integrity sha512-PA9+jCjw4WC3Oc5ocSMBj5sXvueWQeAbvCA+hUlb6oFgwwKyq5ka3bWQ7QZcjzIX+TdFkxP4IbFmoY2D8Dkj9Q==

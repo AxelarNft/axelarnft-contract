@@ -22,7 +22,7 @@ contract AxelarSeaNft721A is ERC721AEnumerable, AxelarSeaNftBase {
     _safeMint(to, amount);
   }
 
-  function transferFrom(address from, address to, uint256 tokenId) public virtual override(ERC721A) {
+  function transferFrom(address from, address to, uint256 tokenId) public virtual override(ERC721A, IERC721A) {
     AxelarSeaNftBase._beforeTokenTransferCheck(from);
     super.transferFrom(from, to, tokenId);
   }
@@ -34,21 +34,21 @@ contract AxelarSeaNft721A is ERC721AEnumerable, AxelarSeaNftBase {
   /**
     * @dev See {IERC721Metadata-tokenURI}.
     */
-  function tokenURI(uint256 tokenId) public view override(AxelarSeaNftBase, ERC721A) virtual returns (string memory) {
+  function tokenURI(uint256 tokenId) public view override(AxelarSeaNftBase, ERC721A, IERC721A) virtual returns (string memory) {
     return AxelarSeaNftBase.tokenURI(tokenId);
   }
 
   /**
     * @dev See {IERC721Metadata-name}.
     */
-  function name() public view override(AxelarSeaNftBase, ERC721A) virtual returns (string memory) {
+  function name() public view override(AxelarSeaNftBase, ERC721A, IERC721A) virtual returns (string memory) {
     return AxelarSeaNftBase.name();
   }
 
   /**
     * @dev See {IERC721Metadata-symbol}.
     */
-  function symbol() public view override(AxelarSeaNftBase, ERC721A) virtual returns (string memory) {
+  function symbol() public view override(AxelarSeaNftBase, ERC721A, IERC721A) virtual returns (string memory) {
     return AxelarSeaNftBase.symbol();
   }
 }

@@ -36,6 +36,13 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
   string public baseContractURI;
   string public baseTokenURI;
 
+  // Deployment fee
+  address public newProjectFeeAddress;
+  uint256 public newProjectFeeAmount;
+
+  address public newCollectionFeeAddress;
+  uint256 public newCollectionFeeAmount;
+
   // Best practice to leave room for more variable if upgradeable
   uint256[200] private __GAP;
 
@@ -54,6 +61,20 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
   modifier onlyOperator {
     require(operators[msgSender()], "Not Operator");
     _;
+  }
+
+  event SetNewProjectFee(address indexed token, uint256 fee);
+  function setNewProjectFee(address token, uint256 fee) public onlyOwner {
+    newProjectFeeAddress = token;
+    newProjectFeeAmount = fee;
+    emit SetNewProjectFee(token, fee);
+  }
+
+  event SetNewCollectionFee(address indexed token, uint256 fee);
+  function setNewCollectionFee(address token, uint256 fee) public onlyOwner {
+    newCollectionFeeAddress = token;
+    newCollectionFeeAmount = fee;
+    emit SetNewCollectionFee(token, fee);
   }
 
   event SetMintFee(address indexed addr, uint256 fee);
@@ -89,23 +110,35 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
   }
 
   event NewProject(address indexed owner, bytes32 projectId);
-  function newProject(address owner, bytes32 projectId) public onlyOperator {
+  function _newProject(address owner, bytes32 projectId) public onlyOperator {
     projectOwner[projectId] = owner;
     projectMember[projectId][owner] = 2;
+
+    // New project fee only paid once per chain
+    if (newProjectFeeAddress != address(0) && newProjectFeeAmount > 0) {
+      IERC20(newProjectFeeAddress).safeTransferFrom(msgSender(), address(this), newProjectFeeAmount);
+    }
 
     emit NewProject(owner, projectId);
   }
 
+  function newProject(address owner, bytes32 projectId) public onlyOperator {
+    if (owner == address(0)) revert Forbidden();
+    _newProject(owner, projectId);
+  }
+
   event SetProjectMember(bytes32 indexed projectId, address indexed member, uint256 level);
   function setProjectMember(bytes32 projectId, address member, uint256 level) public {
-    require(level <= 2 && projectMember[projectId][msgSender()] == 2 && member != projectOwner[projectId] && projectOwner[projectId] != address(0), "Forbidden");
+    // Invalid level || Not admin || Change owner || Invalid project -> Forbidden || Invalid member -> Forbidden
+    if(level > 2 || projectMember[projectId][msgSender()] != 2 || member == projectOwner[projectId] || projectOwner[projectId] == address(0) || member == address(0)) revert Forbidden();
     projectMember[projectId][member] = level;
     emit SetProjectMember(projectId, member, level);
   }
 
   event SetProjectOwner(bytes32 indexed projectId, address indexed owner);
   function setProjectOwner(bytes32 projectId, address owner) public {
-    require(msgSender() == projectOwner[projectId] && projectMember[projectId][owner] == 2 && projectOwner[projectId] != address(0), "Forbidden");
+    // Not owner || New member not admin || Invalid project || Invalid owner -> Forbidden
+    if(msgSender() != projectOwner[projectId] || projectMember[projectId][owner] != 2 || projectOwner[projectId] == address(0) || owner == address(0)) revert Forbidden();
     projectOwner[projectId] = owner;
     emit SetProjectOwner(projectId, owner);
   }
@@ -115,7 +148,8 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
   function _linkProject(address contractAddress, bytes32 projectId) internal {
     address owner = Ownable(contractAddress).owner();
 
-    require(owner != address(0) && owner == projectOwner[projectId], "Not owner");
+    // If no owner || owner of nft is not a member of project -> Forbidden
+    if(owner == address(0) || projectMember[projectId][owner] == 0) revert Forbidden();
 
     nftProject[contractAddress] = projectId;
 
@@ -144,9 +178,20 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
       revert InvalidTemplate(template);
     }
 
+    // Collection deployment fee
+    if (newCollectionFeeAddress != address(0) && newCollectionFeeAmount > 0) {
+      IERC20(newCollectionFeeAddress).safeTransferFrom(msgSender(), address(this), newCollectionFeeAmount);
+    }
+
     nft = IAxelarSeaNftInitializable(Clones.clone(template));
     nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
+
+    if (projectOwner[projectId] == address(0)) {
+      _newProject(owner, projectId);
+    }
+    
     _linkProject(address(nft), projectId);
+
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }
 
@@ -170,8 +215,18 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
       revert InvalidTemplate(minterTemplate);
     }
 
+    // Collection deployment fee
+    if (newCollectionFeeAddress != address(0) && newCollectionFeeAmount > 0) {
+      IERC20(newCollectionFeeAddress).safeTransferFrom(msgSender(), address(this), newCollectionFeeAmount);
+    }
+
     nft = IAxelarSeaNftInitializable(Clones.clone(template));
     nft.initialize(owner, collectionId, exclusiveLevel, maxSupply, name, symbol);
+
+    if (projectOwner[projectId] == address(0)) {
+      _newProject(owner, projectId);
+    }
+    
     _linkProject(address(nft), projectId);
 
     minter = nft.deployMinter(minterTemplate, data);

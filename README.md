@@ -16,9 +16,16 @@
 * MarketplaceMetaWallet deployed to: 0xC03a7ED392E02a9F404013593A3dae8234876874
 * Marketplace deployed to: 0xA32a90B0ec1232c69388AA1Bd5FEE6E8570a3726
 * Sample NFT deployed to: 0x7EE1704B30C7efE70e2cA7d143A4585F47E05eDf
-* AxelarSeaNft721Enumerable deployed to: 0xDa39d42c2186033F12b1caB25Ac048A02d4C1563
-* AxelarSeaNftMerkleMinter deployed to: 0x273B4865f041C5faAD20Fa18FdbDbaD8a43AFb67
-* AxelarSeaProjectRegistry deployed to: 0xbebb21126cb9Ee42ed7cf2ACbe574675DB6bc055
+
+* AxelarSeaNft721Enumerable deployed to: 0x3BF1b55E0b699D3fF6Df3a90EBd82fb521F7420a
+* AxelarSeaNft721A deployed to: 0x36E06AE07FAd08FAFB61ee712819bB208454bcA6
+* AxelarSeaProjectRegistry deployed to: 0x00762f7415577Ab004Ae9b926856bEee049EBAe7
+* AxelarSeaNftMerkleMinter deployed to: 0x58Ed5e9aB1aC5Bcf448001eCDeB0038002CEeb6B
+* AxelarSeaNftMerkleMinterNative deployed to: 0x4Bcd4C71f7f57c965Be9478C3E897942E0D11093
+* AxelarSeaNftSignatureMinter deployed to: 0x85524BFE8e5282EF2f743179d64E6Af71a6Bd598
+* AxelarSeaNftSignatureMinterNative deployed to: 0xF4082021B35B3cD002f3D373ca5f058A0eBbE460
+* AxelarSeaNftPublicMinter deployed to: 0xaa940fC46E83F84Ed626Cb167C5985b6d0E2cDE5
+* AxelarSeaNftPublicMinterNative deployed to: 0x23a6Fd2c8582Ec0EF8cAF18c2e3c8610F677cbBf
 
 ### Fantom testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C

@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import {EIP712Base} from "./EIP712Base.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/SignatureCheckerUpgradeable.sol";
+import "../seaport/lib/SignatureVerification.sol";
 
-contract MetaTransactionVerifier is EIP712Base {
+contract MetaTransactionVerifier is EIP712Base, SignatureVerification {
     bytes32 private constant META_TRANSACTION_TYPEHASH = keccak256(
         bytes(
             "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
@@ -75,7 +75,11 @@ contract MetaTransactionVerifier is EIP712Base {
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
 
-        return SignatureCheckerUpgradeable.isValidSignatureNow(signer, toTypedMessageHash(hashMetaTransaction(metaTx)), signature);
+        // console.log(uint256(toTypedMessageHash(hashMetaTransaction(metaTx))));
+
+        _assertValidSignature(signer, toTypedMessageHash(hashMetaTransaction(metaTx)), signature);
+
+        return true;
 
         // return
         //     signer ==

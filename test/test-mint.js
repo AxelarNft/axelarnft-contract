@@ -485,6 +485,8 @@ describe(`AxelarSea — initial test suite`, function () {
 
     it('Should use meta transaction to add new project', async () => {
       const signature = await generateNewProjectSignature(operator.privateKey, projectRegistry.address, CHAIN_ID, projectOwner.address, ethers.utils.hexZeroPad('0x4444', 32))
+
+      // console.log(signature, operator.address)
       
       await projectRegistry.executeMetaTransaction(
         operator.address,
