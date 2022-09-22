@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./AxelarSeaRangoPG.sol";
 import "../lib/SafeTransferLib.sol";
 
-contract AxelarSeaRangoPGMock is Ownable {
+contract AxelarSeaRangoPGMockDest is Ownable {
   using SafeTransferLib for IERC20;
 
   AxelarSeaRangoPG public immutable rangoPg;

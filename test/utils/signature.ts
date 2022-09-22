@@ -1,4 +1,3 @@
-import { HttpProvider } from "web3/providers";
 import { getMessage } from 'eip-712';
 import { Signature, Wallet, Signer, utils } from 'ethers';
 

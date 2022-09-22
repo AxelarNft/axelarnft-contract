@@ -12,11 +12,16 @@ contract AxelarSeaMetaWalletFactory is OwnableUpgradeable {
 
   // Address of AxelarSeaMetaWallet contract for a particular user
   mapping(address => address) public metaWalletAddress;
+  mapping(address => uint256) public metaWalletVersion;
+  uint256 public version;
 
   // Operator is a contract that can perform any operation on behalf of MetaWallet
   mapping(address => bool) public operators;
 
+  // GAP is not neccessary since this contract operate on its own
+
   function initialize(address _metaWalletTemplate) public initializer {
+    version = 1;
     metaWalletTemplate = _metaWalletTemplate;
     __Ownable_init();
   }
@@ -29,13 +34,16 @@ contract AxelarSeaMetaWalletFactory is OwnableUpgradeable {
 
   event DeployMetaWallet(address indexed metaWalletOwner, address indexed metaWallet);
   function deployMetaWallet(address metaWalletOwner) public returns(address metaWallet) {
-    if (metaWalletAddress[metaWalletOwner] != address(0)) {
+    if (metaWalletAddress[metaWalletOwner] != address(0) && metaWalletVersion[metaWalletOwner] == version) {
       return metaWalletAddress[metaWalletOwner];
     }
 
     metaWallet = Clones.clone(metaWalletTemplate);
 
-    AxelarSeaMetaWallet(metaWallet).initialize(metaWalletOwner);
+    // AxelarSeaMetaWallet(metaWallet).initialize(metaWalletOwner);
+
+    metaWalletAddress[metaWalletOwner] = metaWallet;
+    metaWalletVersion[metaWalletOwner] = version;
 
     emit DeployMetaWallet(metaWalletOwner, metaWallet);
   }

@@ -102,7 +102,11 @@ contract AxelarSeaMetaWallet is Initializable, IERC721Receiver, IERC1155Receiver
   // Note: For ERC721 and ERC1155 use execute with appropriate function directly
 
   function approveERC20(IERC20 token, address spender, uint256 amount) public onlyOperator(msg.sender) {
-    try token.approve(spender, amount) returns (bool) {} catch {
+    try token.approve(spender, amount) returns (bool success) {
+      if (!success) {
+        revert ApproveFailed();
+      }
+    } catch {
       token.safeApprove(spender, 0);
       token.safeApprove(spender, amount);
     }

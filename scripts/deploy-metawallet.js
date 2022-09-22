@@ -7,8 +7,6 @@ const hre = require("hardhat");
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-const IS_DEV = true;
-
 async function deployUpgradeable(contractName, ...args) {
   const Contract = await ethers.getContractFactory(contractName);
   const contract = await upgrades.deployProxy(Contract, args, { initializer: 'initialize' });
@@ -26,21 +24,29 @@ async function deploy(contractName, ...args) {
   return contract;
 }
 
-async function main() {
+async function main(IS_DEV = false) {
   const accounts = await hre.ethers.getSigners();
   const chainId = hre.network.config.chainId;
 
   const contracts = {};
 
-  const axelarSeaMetaWallet = contracts.axelarSeaMetaWallet = await deployUpgradeable("AxelarSeaMetaWallet", "0x0000000000000000000000000000000000000000");
-  const axelarSeaMetaWalletFactory = contracts.axelarSeaMetaWalletFactory = await deployUpgradeable("AxelarSeaMetaWallet", axelarSeaMetaWallet.address);
+  let rangoContract = ""; // TODO
 
-  // Rango payment gateway
-  const axelarSeaRangoPg = contracts.axelarSeaRangoPg = await deployUpgradeable("AxelarSeaRangoPG", axelarSeaMetaWalletFactory.address);
+  const axelarSeaMetaWallet = contracts.axelarSeaMetaWallet = await deploy("AxelarSeaMetaWallet");
+  const axelarSeaMetaWalletFactory = contracts.axelarSeaMetaWalletFactory = await deployUpgradeable("AxelarSeaMetaWalletFactory", axelarSeaMetaWallet.address);
 
   // Rango mock
   if (IS_DEV) {
-    const axelarSeaRangoPgMock = contracts.axelarSeaRangoPgMock = await deploy("AxelarSeaRangoPGMock", axelarSeaRangoPg.address);
+    const axelarSeaRangoPgMockSource = contracts.axelarSeaRangoPgMockSource = await deploy("AxelarSeaRangoPGMockSource");
+    rangoContract = axelarSeaRangoPgMockSource.address;
+  }
+
+  // Rango payment gateway
+  const axelarSeaRangoPg = contracts.axelarSeaRangoPg = await deployUpgradeable("AxelarSeaRangoPG", rangoContract, axelarSeaMetaWalletFactory.address);
+
+  // Rango mock
+  if (IS_DEV) {
+    const axelarSeaRangoPgMockDest = contracts.axelarSeaRangoPgMockDest = await deploy("AxelarSeaRangoPGMockDest", axelarSeaRangoPg.address);
   }
 
   return contracts;
