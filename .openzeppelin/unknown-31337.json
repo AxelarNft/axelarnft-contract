@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0xf5b29b20b72c8de5aad80bcc016eba322c7d4a4a76fd4182e63ae52722501aa9"
+    "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "txHash": "0x412f43c95a932c011e030707a8f8edf0292db78547ed8c3a32b1171d5cd84793"
   },
   "proxies": [
     {
@@ -63,11 +63,6 @@
     {
       "address": "0x51A1ceB83B83F1985a81C295d1fF28Afef186E02",
       "txHash": "0x9eb786487a5f4a0b401de85269fbd0d7da59294161ebf6a4ccae01f8591718fa",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x7c6d2ba2f4e3df36616382115c91681b2b2e559b8f5b1ac013ad621eaf19db38",
       "kind": "transparent"
     },
     {
@@ -148,11 +143,6 @@
     {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "txHash": "0x79904ccf49f7ebb810a1b496845617674a36a3ed4d7280b719b7312a388995c6",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x91b0db36e0e9a672fa5ad035587608859507a62a388b208961533ad2900cade5",
       "kind": "transparent"
     },
     {
@@ -388,6 +378,26 @@
     {
       "address": "0xa31F4c0eF2935Af25370D9AE275169CCd9793DA3",
       "txHash": "0x9a9e9c3dbfb499de070a6cc7c6d89a18e8a1b6c22514b8d527e6b1c67b359a70",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0xad03d71be002bcc03fd38a1d8db5e7491574be1f04bb6aa882d350ed8f3bd97d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x167118af337723f0a5c7dac9f2d1990c0ac4403c2dff5bd7750138cb89982afd",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x998abeb3E57409262aE5b751f60747921B33613E",
+      "txHash": "0x0adfa5f11aea94645e876ce295f26f4e1d457a15d44736ae58ffd33cb073dbfb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
+      "txHash": "0x377f7ca168dbc86608255073ccd4e1ee0167aace2324e5c736ee5f7de99c208b",
       "kind": "transparent"
     }
   ],
@@ -1085,8 +1095,8 @@
       }
     },
     "1e1ff18d7f7fcbfa468a37ffd52950daedc70b13c75dc69494548cd065043124": {
-      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0x32f8c2f8750549d2813ee2eb66abd049dd3ffbae33b31552027ab84d81848ce1",
+      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "txHash": "0x0b321483a6c17d4345a1878fd60a75b05c44551beb31269d12dbc7a9b40c1f88",
       "layout": {
         "storage": [
           {
@@ -1150,7 +1160,7 @@
             "label": "metaWalletFactory",
             "offset": 0,
             "slot": "103",
-            "type": "t_contract(AxelarSeaMetaWalletFactory)14284",
+            "type": "t_contract(AxelarSeaMetaWalletFactory)14312",
             "contract": "AxelarSeaRangoPG",
             "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:33"
           }
@@ -1176,7 +1186,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AxelarSeaMetaWalletFactory)14284": {
+          "t_contract(AxelarSeaMetaWalletFactory)14312": {
             "label": "contract AxelarSeaMetaWalletFactory",
             "numberOfBytes": "20"
           },
@@ -1735,8 +1745,8 @@
       }
     },
     "907b98912ac189b3ed5dbb3efa57c26a9c3f4acc37a6e155ad6ce5a9cb8c1db0": {
-      "address": "0x9fD16eA9E31233279975D99D5e8Fc91dd214c7Da",
-      "txHash": "0x01b9a81f2d3eb1dc76e7f5d853bdfe83ecd5a37b302bb20227b1cd6134105ccf",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x58f6ea324921a00a1d06f73188748cd2fe5f4ce8fa61247905db9655f443e97a",
       "layout": {
         "storage": [
           {

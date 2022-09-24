@@ -1,0 +1,259 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xE38Be85B5B9DD514bCB73a032FAEcC01173Ed1b0",
+    "txHash": "0x26cf3fec8f63644f00752a7a6320f7a09cc634825e98c49ade222598d25b0fcc"
+  },
+  "proxies": [
+    {
+      "address": "0x36C4848fDB56c1b1E685CAF4aC9050B1AC6934Ac",
+      "txHash": "0x540de64f141d4a0d918b6645473ecca9c7a3834405f744d8cc1eab6f1d5563fa",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xCbAf2ecf7da45a69DCbD0b032a2CE8f86BE0fb97",
+      "txHash": "0x35e4af9fb6f10e74804402d0b4c793303a45234b18224d34f855e64e8df89afd",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "907b98912ac189b3ed5dbb3efa57c26a9c3f4acc37a6e155ad6ce5a9cb8c1db0": {
+      "address": "0x58C399206a964f05f1Ca98334F67A19BFA0543dF",
+      "txHash": "0x63e57e2e566e7475905a8dcfcda46c86c6b51e6eda87fa05f3fff0d3bccbb1c6",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "metaWalletTemplate",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:11"
+          },
+          {
+            "label": "metaWalletAddress",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:14"
+          },
+          {
+            "label": "metaWalletVersion",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:15"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:16"
+          },
+          {
+            "label": "operators",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:19"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "1e1ff18d7f7fcbfa468a37ffd52950daedc70b13c75dc69494548cd065043124": {
+      "address": "0xf2FDBb7a72b5D20dDDb0c3fE4E751535E6BA59aC",
+      "txHash": "0x2c7b393bfcfb7622838afc72b6cfb5c22dd0fefc38bc1bfffd512d3ab552f3bf",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "whitelistedRelayer",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:31"
+          },
+          {
+            "label": "rangoContract",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address_payable",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:32"
+          },
+          {
+            "label": "metaWalletFactory",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(AxelarSeaMetaWalletFactory)14312",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:33"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(AxelarSeaMetaWalletFactory)14312": {
+            "label": "contract AxelarSeaMetaWalletFactory",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

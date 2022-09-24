@@ -47,7 +47,7 @@ const {
 
 const {
   deployMetaWallet
-} = require("../scripts/deploy-metawallet");
+} = require("../scripts/deploy-rango");
 
 const AxelarRangoPgMockSourceABI = require("../artifacts/contracts/paymentGateway/AxelarSeaRangoPGMockSource.sol/AxelarSeaRangoPGMockSource.json").abi
 const AxelarRangoPgMockDestABI = require("../artifacts/contracts/paymentGateway/AxelarSeaRangoPGMockDest.sol/AxelarSeaRangoPGMockDest.json").abi

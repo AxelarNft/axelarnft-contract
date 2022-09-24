@@ -130,6 +130,17 @@ module.exports = {
       accounts: [privateKey]
     },
 
+    polygon: {
+      url: "https://polygon-rpc.com",
+      chainId: 137,
+      accounts: [privateKey]
+    },
+    fantom: {
+      url: "https://rpcapi.fantom.network",
+      chainId: 250,
+      accounts: [privateKey]
+    },
+
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
