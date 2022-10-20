@@ -66,4 +66,11 @@ contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
   function _msgData() internal view override(Context, ContextUpgradeable) virtual returns (bytes calldata) {
     return ContextUpgradeable._msgData();
   }
+
+  /**
+    * @dev See {IERC165-supportsInterface}.
+    */
+  function supportsInterface(bytes4 interfaceId) public view virtual override(AxelarSeaNftBase, ERC721Enumerable) returns (bool) {
+    return AxelarSeaNftBase.supportsInterface(interfaceId) || ERC721Enumerable.supportsInterface(interfaceId);
+  }
 }

@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 // import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
@@ -13,7 +15,7 @@ import "../AxelarSeaProjectRegistry.sol";
 import "./AxelarSeaMintingErrors.sol";
 
 // Use Upgradeable for minimal clone pattern but actually is is not upgradeable
-abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializable, ReentrancyGuardUpgradeable {
+abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializable, ReentrancyGuardUpgradeable, IERC2981, ERC165 {
   using Strings for uint256;
   using SafeTransferLib for IERC20;
 
@@ -37,6 +39,9 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
 
   string public baseTokenUriPrefix;
   string public baseTokenUriSuffix;
+
+  address public royaltyReceiver;
+  uint256 public royaltyPercentage;
 
   modifier onlyMinter(address addr) {
     require(minters[addr], "Forbidden");
@@ -193,13 +198,39 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
     * @dev See {IERC721Metadata-name}.
     */
   function name() public view virtual returns (string memory) {
-      return nftName;
+    return nftName;
   }
 
   /**
     * @dev See {IERC721Metadata-symbol}.
     */
   function symbol() public view virtual returns (string memory) {
-      return nftSymbol;
+    return nftSymbol;
+  }
+
+  /**
+    * @dev See {IERC165-supportsInterface}.
+    */
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+    return super.supportsInterface(interfaceId) || interfaceId == type(IERC2981).interfaceId;
+  }
+
+  /**
+    * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+    * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+    */
+  function royaltyInfo(uint256, uint256 salePrice) external view virtual override returns (address receiver, uint256 royaltyAmount) {
+    receiver = royaltyReceiver;
+    royaltyAmount = salePrice * royaltyPercentage / 1e18;
+  }
+
+  event SetRoyalty(address indexed receiver, uint256 indexed percentage);
+  function setRoyalty(address receiver, uint256 percentage) public onlyOwner {
+    if (percentage > 1e18) revert Forbidden();
+
+    royaltyReceiver = receiver;
+    royaltyPercentage = percentage;
+
+    emit SetRoyalty(royaltyReceiver, royaltyPercentage);
   }
 }

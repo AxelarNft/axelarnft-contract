@@ -65,6 +65,8 @@ contract AxelarSeaRangoPG is IRangoMessageReceiver, OwnableUpgradeable {
         ProcessStatus _status,
         bytes memory _message
     ) external {
+        require(whitelistedRelayer[msg.sender], "Not Whitelisted");
+
         AppMessage memory m = abi.decode((_message), (AppMessage));
 
         if (_status == ProcessStatus.REFUND_IN_SOURCE || _status == ProcessStatus.REFUND_IN_DESTINATION) {
