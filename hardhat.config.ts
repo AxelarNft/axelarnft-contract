@@ -1,7 +1,9 @@
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import '@nomiclabs/hardhat-ethers';
 import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
+import "hardhat-deploy";
 import { task } from "hardhat/config";
 const { privateKey, bscscanApiKey } = require('./secrets.json');
 
@@ -22,7 +24,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  defaultNetwork: "localhost",
+  defaultNetwork: "hardhat",
   solidity: {
     compilers: [
       {
@@ -152,6 +154,17 @@ module.exports = {
 			chainId: 56,
 			accounts: [privateKey],
 		},
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    owner: {
+      default: 0,
+      // default: 1,
+      // goerli: 0,
+      // ropsten: 0,
+    },
   }
 };
 

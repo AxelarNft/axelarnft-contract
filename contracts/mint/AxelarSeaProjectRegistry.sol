@@ -29,6 +29,9 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
   // 1 = Member, 2 = Admin
   mapping(bytes32 => mapping(address => uint256)) public projectMember;
 
+  // Collection ID -> contract address
+  mapping(bytes32 => address) public collectionMapping;
+
   // Minting fee
   address public feeAddress;
   uint256 public baseMintFee;
@@ -178,6 +181,10 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
       revert InvalidTemplate(template);
     }
 
+    if (collectionMapping[collectionId] != address(0)) {
+      revert DuplicatedCollection(collectionId);
+    }
+
     // Collection deployment fee
     if (newCollectionFeeAddress != address(0) && newCollectionFeeAmount > 0) {
       IERC20(newCollectionFeeAddress).safeTransferFrom(msgSender(), address(this), newCollectionFeeAmount);
@@ -191,6 +198,8 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     }
     
     _linkProject(address(nft), projectId);
+
+    collectionMapping[collectionId] = address(nft);
 
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }
@@ -214,6 +223,10 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     if (!minterTemplates[minterTemplate]) {
       revert InvalidTemplate(minterTemplate);
     }
+  
+    if (collectionMapping[collectionId] != address(0)) {
+      revert DuplicatedCollection(collectionId);
+    }
 
     // Collection deployment fee
     if (newCollectionFeeAddress != address(0) && newCollectionFeeAmount > 0) {
@@ -230,6 +243,8 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     _linkProject(address(nft), projectId);
 
     minter = nft.deployMinter(minterTemplate, data);
+
+    collectionMapping[collectionId] = address(nft);
 
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
   }

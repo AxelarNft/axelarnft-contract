@@ -8,3 +8,4 @@ error MintPerWalletLimited();
 error SupplyLimited();
 error NotWhitelisted();
 error TransferFailed();
+error DuplicatedCollection(bytes32 collectionId);

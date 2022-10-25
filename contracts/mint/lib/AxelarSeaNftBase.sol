@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 // import "../meta-transactions/MetaTransactionVerifier.sol";
 import "./IAxelarSeaNftInitializable.sol";
@@ -18,6 +19,7 @@ import "./AxelarSeaMintingErrors.sol";
 abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializable, ReentrancyGuardUpgradeable, IERC2981, ERC165 {
   using Strings for uint256;
   using SafeTransferLib for IERC20;
+  using EnumerableSet for EnumerableSet.AddressSet;
 
   bool public newMinterStopped; // default to false
 
@@ -31,7 +33,7 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
   uint256 public maxSupply;
 
   mapping(address => bool) public exclusiveContract;
-  mapping(address => bool) public minters;
+  EnumerableSet.AddressSet private minters;
   mapping(address => uint256) public walletMinted;
 
   uint256 public mintFeeOverride; // default to 0
@@ -44,7 +46,7 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
   uint256 public royaltyPercentage;
 
   modifier onlyMinter(address addr) {
-    require(minters[addr], "Forbidden");
+    require(minters.contains(addr), "Forbidden");
     _;
   }
 
@@ -91,8 +93,38 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
       revert Forbidden();
     }
 
-    minters[minter] = enabled;
+    if (enabled) {
+      minters.add(minter);
+    } else {
+      minters.remove(minter);
+    }
+    
     emit SetMinter(minter, enabled);
+  }
+
+  function isMinter(address minter) public view returns(bool) {
+    return minters.contains(minter);
+  }
+
+  function mintersLength() public view returns(uint256) {
+    return minters.length();
+  }
+
+  function getMinters(uint256 start, uint256 end) public view returns(address[] memory) {
+    uint256 length = end - start;
+    address[] memory result = new address[](length);
+
+    unchecked {
+      for (uint256 i = 0; i < length; i++) {
+        result[i] = minters.at(start + i);
+      }
+    }
+
+    return result;
+  }
+
+  function getAllMinters() public view returns(address[] memory) {
+    return getMinters(0, mintersLength());
   }
 
   function deployMinter(address template, bytes memory data) public nonReentrant returns(IAxelarSeaMinterInitializable minter) {
@@ -107,7 +139,7 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
     minter = IAxelarSeaMinterInitializable(Clones.clone(template));
     minter.initialize(address(this), owner(), data);
 
-    minters[address(minter)] = true;
+    minters.add(address(minter));
     emit SetMinter(address(minter), true);
   }
 
