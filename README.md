@@ -17,17 +17,17 @@
 * Marketplace deployed to: 0xA32a90B0ec1232c69388AA1Bd5FEE6E8570a3726
 * Sample NFT deployed to: 0x7EE1704B30C7efE70e2cA7d143A4585F47E05eDf
 
-* deploying "DefaultProxyAdmin" (tx: 0x467ee5b91f672680037bc082c8945225886711c2bd8f114d42c66177bff24306)...: deployed at 0x9e8160874163F3004EA160A8015a75c5336BAADe with 643983 gas
-* deploying "AxelarSeaProjectRegistry_Implementation" (tx: 0xb0b4ab359110998ff798a6d9f3f8842ea61804bc300a2f4a3b593da0573eb46d)...: deployed at 0x4701207344A065d6c1c663824731f05f1a3016E9 with 2518893 gas
-* deploying "AxelarSeaProjectRegistry_Proxy" (tx: 0xe934436e25d52cff606de7929adff5f554dfd7b1ef8889679777845c5a724bd4)...: deployed at 0x54032E22d61ada3095531C12224795A1258657D5 with 895259 gas
-* deploying "AxelarSeaNft721Enumerable" (tx: 0x3d8213261aa2fe2a4ed5e8e4010377ddba1c76cdd5f58bddba91d4a41d36a617)...: deployed at 0x8e78E9F51b75B2e478F66579722B8B48748b5447 with 3182782 gas
-* deploying "AxelarSeaNft721A" (tx: 0x15b5a9e894cd5edd2a1100f6409659bc798727625bc3f6d76516a1f7ba37890b)...: deployed at 0x439DA988417526D20f40EF4077056bE1F5c7Cd4e with 3219351 gas
-* deploying "AxelarSeaNftMerkleMinter" (tx: 0x31c2601a984998a95e02f3e8507eda42086440dbfa098e21db17ffc52b1185cf)...: deployed at 0xbBc01A64277Eb1706574918dc3CE674da61F1ef1 with 1173244 gas
-* deploying "AxelarSeaNftMerkleMinterNative" (tx: 0xe6188e5dc5eaf73afa7dc082c8fa5a5fdf71f4c3c95289ee5a00c68c4bbcc3c6)...: deployed at 0x619F3c9a1C031F0bDC348eC8c2fEEAd9fAC5B30e with 1129218 gas
-* deploying "AxelarSeaNftSignatureMinter" (tx: 0xf0186ec3b6f08275f14966e6af7f1562e901d3f4288f11fd050ebf56a5e83812)...: deployed at 0xfDA20b1e033300ee07eB1FB2381C3cD16d055ABd with 1389308 gas
-* deploying "AxelarSeaNftSignatureMinterNative" (tx: 0x466c999f7edc8f8d2f2172588a8c1d6d62fd1fd23566a2349ece4391e6959912)...: deployed at 0x46DED0143f98FCf603936431dFd92B2Cf11d352d with 1346404 gas
-* deploying "AxelarSeaNftPublicMinter" (tx: 0xe48326892d7f4eb12a8ab90ae75bbe72c60512755c377dd909c4ac3670329c0a)...: deployed at 0x8c77174A93D3F97b63aDF9cCc23d4F2bbFeab562 with 1031794 gas
-* deploying "AxelarSeaNftPublicMinterNative" (tx: 0xc56f0f3d5bae420f9aec698ff351d4b649e0c6d2856f9cf203611a1bfa7ef04c)...: deployed at 0xa4A1eBfeADDe626f56eEa55770Eb433B599D8429 with 987775 gas
+* deploying "DefaultProxyAdmin" (tx: 0xd6751c91a891306fb04109b8e818c29efc382a40204131b49933d3f4ffb9026d)...: deployed at 0x468422B1C75D71ea4a171dE892f3EA8Ae1B184f5 with 643983 gas
+* deploying "AxelarSeaProjectRegistry_Implementation" (tx: 0xad274c50925367a17fa98845df34f2ecad43df6438fc8adfbfb3abb55362961f)...: deployed at 0x7AF1B791262435cDe22E98b2c1A01b3a45A87f1A with 2518893 gas
+* deploying "AxelarSeaProjectRegistry_Proxy" (tx: 0xe2903932a2ccbc5976d9b756967890f3d2346583166a274487560346c5d49cd9)...: deployed at 0xf37a9BD1350d63d0B7dB32D5025A854F72dBc26c with 895271 gas
+* deploying "AxelarSeaNft721Enumerable" (tx: 0x6fe5884b2a1a3d5d37758ca4af27eae2a1d0d608ba157900a476d532539dcec2)...: deployed at 0x4240DdDbbA5193C3df37404dA9b188528c50Ec80 with 3147151 gas
+* deploying "AxelarSeaNft721A" (tx: 0xa83f0dcc4cfc9ad0b15615bc662aadc4b389a06aa05e64fa785828681db5c3c4)...: deployed at 0x2804B10cF3BA5ca375974Bd3505ef84384A38F39 with 3206855 gas
+* deploying "AxelarSeaNftMerkleMinter" (tx: 0x0aeac5c57c5aba8f08b1fad68abb671124c64ae2d3b4ba1029140f0033d1d11f)...: deployed at 0x099908B223CFd282Db1fd1e66c6c7b67e3ecD626 with 1215368 gas
+* deploying "AxelarSeaNftMerkleMinterNative" (tx: 0x0416fb4c9f28d4404e9a1ab6e01130a515147cde6a817afd443a59074dba489f)...: deployed at 0xC46407688E485c556BE262682222111f0F37357b with 1171786 gas
+* deploying "AxelarSeaNftSignatureMinter" (tx: 0x64e0faf80a0ecda9a751ab98c9967200a6002e41682405a1a5f9b9aed773d2be)...: deployed at 0x00fd4d4b4f1E2497Bf5dBbF886dA72918A63d4be with 1430797 gas
+* deploying "AxelarSeaNftSignatureMinterNative" (tx: 0xcad765982e73e8ed00e74870c6f03170e770fbdaa2f3698119c146bd49ccd649)...: deployed at 0xfC179fd01a5Cb2754320dDE8DEC6bb4e60dC4f58 with 1387220 gas
+* deploying "AxelarSeaNftPublicMinter" (tx: 0x09e26a481a3eb9e96c5121ebcb14f1597255ec376fe0e9f4a9f823468a927976)...: deployed at 0x1CceFD1c84D5750E8b231bBCF1637097dA66a429 with 1074181 gas
+* deploying "AxelarSeaNftPublicMinterNative" (tx: 0x51e084f4185d8e7a647397906d84f6a9eba48c1935404e7a908ef0d1c5d52a4b)...: deployed at 0xF15c7b645E4ad7A17c8596d92a0C74f0271570c3 with 1030630 gas
 
 ### Fantom testnet
 * MarketplaceMetaWallet deployed to: 0xD5062f2d506a651BEda655cBf649491116b8b99C
