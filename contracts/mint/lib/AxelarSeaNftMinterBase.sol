@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: BUSL
+//SPDX-License-Identifier: None
 pragma solidity >=0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -21,6 +21,8 @@ abstract contract AxelarSeaNftMinterBase is OwnableUpgradeable, ReentrancyGuardU
   AxelarSeaProjectRegistry public registry;
   AxelarSeaNftPriceData public priceData;
   AxelarSeaNftBase public nft;
+  
+  mapping(address => uint256) public walletMinted;
 
   function _updateConfig(bytes memory data) internal virtual;
 
@@ -59,6 +61,14 @@ abstract contract AxelarSeaNftMinterBase is OwnableUpgradeable, ReentrancyGuardU
 
   function recoverERC20(IERC20 token) external onlyOwner {
     token.safeTransfer(msg.sender, token.balanceOf(address(this)));
+  }
+
+  function _ensureMintLimit(address to, uint256 maxAmount, uint256 amount) internal {
+    walletMinted[to] += amount;
+
+    if (walletMinted[to] > maxAmount) {
+      revert MintPerWalletLimited(maxAmount);
+    }
   }
 }
 

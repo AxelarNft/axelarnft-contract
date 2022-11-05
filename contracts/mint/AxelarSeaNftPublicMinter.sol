@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 import "./lib/AxelarSeaNftMinterBase.sol";
@@ -30,8 +30,9 @@ abstract contract AxelarSeaNftPublicMinterBase is AxelarSeaNftMinterWithPayment 
   }
 
   function mintPublic(address to, uint256 amount) public payable nonReentrant {
+    _ensureMintLimit(to, maxMintPerWallet, amount);
     _pay(msg.sender, amount);
-    nft.mint(to, maxMintPerWallet, amount);
+    nft.mint(to, amount);
   }
 }
 

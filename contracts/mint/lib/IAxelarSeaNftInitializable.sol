@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: BUSL
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 interface IAxelarSeaNftInitializable {
@@ -16,7 +16,7 @@ interface IAxelarSeaNftInitializable {
     bytes memory data
   ) external returns(IAxelarSeaMinterInitializable minter);
 
-  function mint(address to, uint256 maxAmount, uint256 amount) external;
+  function mint(address to, uint256 amount) external;
 }
 
 interface IAxelarSeaMinterInitializable {

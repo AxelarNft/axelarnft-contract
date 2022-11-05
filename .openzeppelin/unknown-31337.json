@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    "txHash": "0xae5d554f0bb706eee56234492bf716642c3fc2b1c145c6a0491d837898527084"
+    "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "txHash": "0xa94e4a4aebee14d5f3df17f856f9fc6890edf0ad4524963a83eef1fa9f9f805c"
   },
   "proxies": [
     {
@@ -371,11 +371,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0xad03d71be002bcc03fd38a1d8db5e7491574be1f04bb6aa882d350ed8f3bd97d",
-      "kind": "transparent"
-    },
-    {
       "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       "txHash": "0x167118af337723f0a5c7dac9f2d1990c0ac4403c2dff5bd7750138cb89982afd",
       "kind": "transparent"
@@ -398,6 +393,31 @@
     {
       "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       "txHash": "0xcc41da1eb7b113652e3f4cdf6f5a6da3b290ca60708ba257ad764df7c7a66db7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0x6272feb7093db5ab085269ecdb40186933d8edadd449264ac3872c7fb05585ea",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
+      "txHash": "0xb33e68b35d002927efbffe7a03252effc2083ef6a4332eda72aeb453413f5b76",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
+      "txHash": "0xca85f99deeac267b147c8b1c69e598c03e18df949d5101b866144b1a462f0fa3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x851356ae760d987E095750cCeb3bC6014560891C",
+      "txHash": "0xdf19926f32c3cf2d801799e2b4c5f6e61be2d45a5c1d11a5dbb4abdd2a21dc29",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
+      "txHash": "0x7a137ff5a0c54fb021918ecf27151292ca42cce1ad0cf383bbd0b8d5fcc303de",
       "kind": "transparent"
     }
   ],
@@ -1744,136 +1764,9 @@
         }
       }
     },
-    "907b98912ac189b3ed5dbb3efa57c26a9c3f4acc37a6e155ad6ce5a9cb8c1db0": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x58f6ea324921a00a1d06f73188748cd2fe5f4ce8fa61247905db9655f443e97a",
-      "layout": {
-        "storage": [
-          {
-            "label": "_initialized",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_uint8",
-            "contract": "Initializable",
-            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
-            "retypedFrom": "bool"
-          },
-          {
-            "label": "_initializing",
-            "offset": 1,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_array(t_uint256)50_storage",
-            "contract": "ContextUpgradeable",
-            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
-          },
-          {
-            "label": "_owner",
-            "offset": 0,
-            "slot": "51",
-            "type": "t_address",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "52",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
-          },
-          {
-            "label": "metaWalletTemplate",
-            "offset": 0,
-            "slot": "101",
-            "type": "t_address",
-            "contract": "AxelarSeaMetaWalletFactory",
-            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:11"
-          },
-          {
-            "label": "metaWalletAddress",
-            "offset": 0,
-            "slot": "102",
-            "type": "t_mapping(t_address,t_address)",
-            "contract": "AxelarSeaMetaWalletFactory",
-            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:14"
-          },
-          {
-            "label": "metaWalletVersion",
-            "offset": 0,
-            "slot": "103",
-            "type": "t_mapping(t_address,t_uint256)",
-            "contract": "AxelarSeaMetaWalletFactory",
-            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:15"
-          },
-          {
-            "label": "version",
-            "offset": 0,
-            "slot": "104",
-            "type": "t_uint256",
-            "contract": "AxelarSeaMetaWalletFactory",
-            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:16"
-          },
-          {
-            "label": "operators",
-            "offset": 0,
-            "slot": "105",
-            "type": "t_mapping(t_address,t_bool)",
-            "contract": "AxelarSeaMetaWalletFactory",
-            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:19"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address",
-            "numberOfBytes": "20"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]",
-            "numberOfBytes": "1568"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]",
-            "numberOfBytes": "1600"
-          },
-          "t_bool": {
-            "label": "bool",
-            "numberOfBytes": "1"
-          },
-          "t_mapping(t_address,t_address)": {
-            "label": "mapping(address => address)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)",
-            "numberOfBytes": "32"
-          },
-          "t_uint256": {
-            "label": "uint256",
-            "numberOfBytes": "32"
-          },
-          "t_uint8": {
-            "label": "uint8",
-            "numberOfBytes": "1"
-          }
-        }
-      }
-    },
     "33a2b80fd91744efc3b98113b9845207b735f7de9c07611b28cb0356856ed6c0": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x815f8ed1d83d38f5a8f5a790da13f1f2b96d0035cd0051442d2f126b50bef752",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x9ec0099b6e13f35667834c73a6813785e869150f9d32f44139ab35ea3590f7d0",
       "layout": {
         "storage": [
           {
@@ -2137,6 +2030,244 @@
           },
           "t_string_storage": {
             "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "907b98912ac189b3ed5dbb3efa57c26a9c3f4acc37a6e155ad6ce5a9cb8c1db0": {
+      "address": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+      "txHash": "0xedbff0bc719615604ffa57f7d0a0e6d8a0d72c2258a2cc572d8ef3158d9b8d0a",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "metaWalletTemplate",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:11"
+          },
+          {
+            "label": "metaWalletAddress",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:14"
+          },
+          {
+            "label": "metaWalletVersion",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:15"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:16"
+          },
+          {
+            "label": "operators",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AxelarSeaMetaWalletFactory",
+            "src": "contracts\\paymentGateway\\AxelarSeaMetaWalletFactory.sol:19"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "b08b1d32c51298cadc436c7ad1fd009a5c8a35556a3eb617165d8b0924e6da5c": {
+      "address": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
+      "txHash": "0x1c7da8656c077573291b1ebd644630918d87e77a63db1062085d7cf90802056c",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "whitelistedRelayer",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:31"
+          },
+          {
+            "label": "rangoContract",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address_payable",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:32"
+          },
+          {
+            "label": "metaWalletFactory",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(AxelarSeaMetaWalletFactory)14864",
+            "contract": "AxelarSeaRangoPG",
+            "src": "contracts\\paymentGateway\\AxelarSeaRangoPG.sol:33"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(AxelarSeaMetaWalletFactory)14864": {
+            "label": "contract AxelarSeaMetaWalletFactory",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
           "t_uint256": {

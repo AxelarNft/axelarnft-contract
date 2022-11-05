@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -36,8 +36,9 @@ abstract contract AxelarSeaNftMerkleMinterBase is AxelarSeaNftMinterWithPayment 
 
   function mintMerkle(address to, uint256 maxAmount, uint256 amount, bytes32[] calldata proof) public payable nonReentrant {
     if(!checkMerkle(to, maxAmount, proof)) revert NotWhitelisted();
+    _ensureMintLimit(to, maxAmount, amount);
     _pay(msg.sender, amount);
-    nft.mint(to, maxAmount, amount);
+    nft.mint(to, amount);
   }
 }
 

@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -7,9 +7,8 @@ import "./lib/AxelarSeaNftBase.sol";
 contract AxelarSeaNft721Enumerable is ERC721Enumerable, AxelarSeaNftBase {
   constructor() ERC721("_", "_") {}
 
-  function _mintInternal(address to, uint256 maxAmount, uint256 amount) internal override {
+  function _mintInternal(address to, uint256 amount) internal override {
     walletMinted[to] += amount;
-    require(walletMinted[to] <= maxAmount, "Mint Limited");
 
     uint256 supply = totalSupply();
     require(supply + amount <= maxSupply, "Supply maxed");

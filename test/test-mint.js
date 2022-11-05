@@ -529,6 +529,8 @@ describe(`AxelarSea — initial test suite`, function () {
           mintEnd: blockTimestamp + 2000,
           mintTokenAddress: testERC20.address,
         });
+
+        console.log(packedParameter2)
   
         const collectionId1 = ethers.utils.hexZeroPad('0x111101', 32);
         // const collectionId2 = ethers.utils.hexZeroPad('0x111102', 32);

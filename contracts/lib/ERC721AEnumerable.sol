@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.7;
 
 import "erc721a/contracts/extensions/ERC721AQueryable.sol";

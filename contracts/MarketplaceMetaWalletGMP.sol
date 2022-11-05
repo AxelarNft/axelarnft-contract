@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 // Minimal contract for allowing token transfer seperated from user wallet

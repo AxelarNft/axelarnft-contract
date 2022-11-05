@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: None
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -172,14 +172,14 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
     }
   }
 
-  function _mintInternal(address to, uint256 maxAmount, uint256 amount) internal virtual;
+  function _mintInternal(address to, uint256 amount) internal virtual;
 
   function mintFee() public view returns(uint256) {
     return (enableMintFeeOverride ? mintFeeOverride : registry.baseMintFee());
   }
 
-  function mint(address to, uint256 maxAmount, uint256 amount) public onlyMinter(msg.sender) nonReentrant {
-    _mintInternal(to, maxAmount, amount);
+  function mint(address to, uint256 amount) public onlyMinter(msg.sender) nonReentrant {
+    _mintInternal(to, amount);
   }
 
   function setBaseTokenUriPrefix(string memory newPrefix) public onlyOwner {
