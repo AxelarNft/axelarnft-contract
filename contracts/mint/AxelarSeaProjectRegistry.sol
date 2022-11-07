@@ -174,6 +174,8 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     bytes32 projectId,
     uint256 exclusiveLevel,
     uint256 maxSupply,
+    address royaltyReceiver,
+    uint256 royaltyPercentage,
     string memory name,
     string memory symbol
   ) public onlyOperator nonReentrant returns(IAxelarSeaNftInitializable nft) {
@@ -199,6 +201,10 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     
     _linkProject(address(nft), projectId);
 
+    if (royaltyReceiver != address(0)) {
+      nft.setRoyalty(royaltyReceiver, royaltyPercentage);
+    }
+
     collectionMapping[collectionId] = address(nft);
 
     emit DeployNft(template, owner, address(nft), collectionId, projectId);
@@ -212,6 +218,8 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     bytes32 projectId,
     uint256 exclusiveLevel,
     uint256 maxSupply,
+    address royaltyReceiver,
+    uint256 royaltyPercentage,
     string memory name,
     string memory symbol,
     bytes memory data
@@ -243,6 +251,10 @@ contract AxelarSeaProjectRegistry is OwnableUpgradeable, NativeMetaTransaction, 
     _linkProject(address(nft), projectId);
 
     minter = nft.deployMinter(minterTemplate, data);
+
+    if (royaltyReceiver != address(0)) {
+      nft.setRoyalty(royaltyReceiver, royaltyPercentage);
+    }
 
     collectionMapping[collectionId] = address(nft);
 

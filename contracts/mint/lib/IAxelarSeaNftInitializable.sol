@@ -17,6 +17,8 @@ interface IAxelarSeaNftInitializable {
   ) external returns(IAxelarSeaMinterInitializable minter);
 
   function mint(address to, uint256 amount) external;
+
+  function setRoyalty(address receiver, uint256 percentage) external;
 }
 
 interface IAxelarSeaMinterInitializable {

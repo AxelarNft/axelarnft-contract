@@ -46,7 +46,14 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
   uint256 public royaltyPercentage;
 
   modifier onlyMinter(address addr) {
-    require(minters.contains(addr), "Forbidden");
+    if (!minters.contains(addr)) revert Forbidden();
+    _;
+  }
+
+  modifier onlyOwnerOrProjectRegistry() {
+    if (msg.sender != owner() && msg.sender != address(registry)) {
+      revert Forbidden();
+    }
     _;
   }
 
@@ -127,11 +134,7 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
     return getMinters(0, mintersLength());
   }
 
-  function deployMinter(address template, bytes memory data) public nonReentrant returns(IAxelarSeaMinterInitializable minter) {
-    if (msg.sender != owner() && msg.sender != address(registry)) {
-      revert Forbidden();
-    }
-
+  function deployMinter(address template, bytes memory data) public onlyOwnerOrProjectRegistry nonReentrant returns(IAxelarSeaMinterInitializable minter) {
     if (!registry.minterTemplates(template)) {
       revert InvalidTemplate(template);
     }
@@ -257,9 +260,7 @@ abstract contract AxelarSeaNftBase is OwnableUpgradeable, IAxelarSeaNftInitializ
   }
 
   event SetRoyalty(address indexed receiver, uint256 indexed percentage);
-  function setRoyalty(address receiver, uint256 percentage) public onlyOwner {
-    if (percentage > 1e18) revert Forbidden();
-
+  function setRoyalty(address receiver, uint256 percentage) public onlyOwnerOrProjectRegistry {
     royaltyReceiver = receiver;
     royaltyPercentage = percentage;
 
