@@ -8,6 +8,10 @@ abstract contract AxelarSeaNftSignatureMinterBase is AxelarSeaNftMinterWithPayme
 
   address public operator;
 
+  function minterType() public override pure returns(string memory) {
+    return "SIGNATURE";
+  }
+
   event UpdateConfigSignatureMinter(
     address indexed nftAddress,
     bytes32 indexed collectionId,

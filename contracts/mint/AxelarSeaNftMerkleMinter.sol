@@ -9,6 +9,10 @@ abstract contract AxelarSeaNftMerkleMinterBase is AxelarSeaNftMinterWithPayment 
 
   bytes32 public merkleRoot;
 
+  function minterType() public override pure returns(string memory) {
+    return "MERKLE";
+  }
+
   event UpdateConfigMerkleMinter(
     address indexed nftAddress,
     bytes32 indexed collectionId,

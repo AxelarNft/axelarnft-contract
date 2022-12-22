@@ -73,6 +73,7 @@ abstract contract AxelarSeaNftMinterBase is OwnableUpgradeable, ReentrancyGuardU
 }
 
 abstract contract AxelarSeaNftMinterWithPayment is AxelarSeaNftMinterBase {
+  function minterType() public virtual pure returns(string memory);
   function _pay(address from, uint256 amount) internal virtual;
 
   function mintFee() public view returns(uint256) {

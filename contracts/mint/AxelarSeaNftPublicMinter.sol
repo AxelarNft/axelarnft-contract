@@ -8,6 +8,10 @@ abstract contract AxelarSeaNftPublicMinterBase is AxelarSeaNftMinterWithPayment 
 
   uint256 public maxMintPerWallet;
 
+  function minterType() public override pure returns(string memory) {
+    return "PUBLIC";
+  }
+
   event UpdateConfigPublicMinter(
     address indexed nftAddress,
     bytes32 indexed collectionId,
