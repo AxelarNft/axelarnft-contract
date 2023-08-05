@@ -5,7 +5,10 @@ import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-deploy";
 import { task } from "hardhat/config";
-const { privateKey, bscscanApiKey } = require('./secrets.json');
+// const { privateKey, bscscanApiKey } = require('./secrets.json');
+
+const privateKey = "0xc30d590cd0a46b96148473920034a528a47a2983ba72f3ec80ffa34e780fda4f"
+const bscscanApiKey = ""
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

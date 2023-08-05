@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@axelar-network/axelar-cgp-solidity@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@axelar-network/axelar-cgp-solidity/-/axelar-cgp-solidity-4.3.0.tgz#90b42b261759fe6b229932152a0911cee071a6ee"
-  integrity sha512-0cCgCFtxnipyzSplPnj/HxDx4DqqHGEr+J7M7NWKM1fXvfS4t/70aCAw/h9GYW8dZ3BmKOqKAYQCNpmP+2Oa+w==
+"@axelar-network/axelar-gmp-sdk-solidity@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@axelar-network/axelar-gmp-sdk-solidity/-/axelar-gmp-sdk-solidity-4.0.3.tgz#8430b1d7db26aa33bc4eef97ba6a1eac226bf012"
+  integrity sha512-7u1pGP66YXnBTRgYRb01ZCAewgYv7+0xjco5uxbG1Rj5S8Nv56GQU8zwE3Y4b424NWlajEiRyf4kmTzKrNORRA==
 
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"

@@ -12,8 +12,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
-// import {IAxelarExecutable} from "./axelar/IAxelarExecutable.sol";
-
 import "hardhat/console.sol";
 
 contract AxelarSeaMarketplace is Ownable, NativeMetaTransaction, ContextMixin, ReentrancyGuard {
